@@ -1,8 +1,8 @@
 # This workflow will build a package using NPM and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 # configures github-actions bot
 
-name: Backend app docker image build and manifest update
+name: frontend app docker image build and manifest update
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        cd backend_nus
+        cd frontend_nus
         docker build -t ghcr.io/shannon36/gc-sus-frontend .
 
     # name: Test Docker image
