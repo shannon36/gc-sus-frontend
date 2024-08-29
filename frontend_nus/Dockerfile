@@ -1,5 +1,5 @@
-# Use an official Node runtime as the base image
-FROM node:18.18.0
+# Use an official Node runtime as the base image, change from 18.18.0 to LTS
+FROM node:18.20.4
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
