@@ -1,0 +1,68 @@
+# This workflow will build a package using NPM and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+# configures github-actions bot
+
+name: Backend app docker image build and manifest update
+
+on:
+  push:
+    paths:
+      - 'frontend_nus/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.ACTION_TOKEN }}
+
+    - name: Build Docker image
+      run: |
+        cd backend_nus
+        docker build -t ghcr.io/shannon36/gc-sus-frontend .
+
+    # name: Test Docker image
+    #   run: |
+    #     docker run --rm ghcr.io/shannon36/gc-sus-frontend echo "Tests passed"
+
+    - name: Push Docker image
+      run: |
+        docker tag ghcr.io/shannon36/gc-sus-frontend:latest ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
+        docker push ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
+
+  update-backend-manifest:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Clone manifest repository
+      run: |
+        git clone https://github.com/shannon36/gc-sus-deployment.git
+
+    - name: Commit and push changes
+      run: |
+        echo "Replacing tag with SHA: ${{ github.sha }}"
+        sed -i "s/image:.*/image: ghcr.io\/shannon36\/gc-sus-frontend:${{ github.sha }}/" ./gc-sus-deployment/frontend/deployment.yaml
+        cd ./gc-sus-deployment
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        echo "Committing the changes..."
+        git commit -m "Update manifest with new Docker tag: ${{ github.sha }}"
+        echo "Setting up remote URL with access token..."
+        git remote set-url origin https://shannon36:${{ secrets.ACTION_TOKEN }}@github.com/shannon36/gc-sus-deployment.git
+        echo "Pushing to origin/main..."
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}

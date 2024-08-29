@@ -1,0 +1,57 @@
+<div class="section-content section-content-p30">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-light" id="dropdown-list">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
+                            <ul class="navbar-nav">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        Category List
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-dark bg-light">
+                                        <li *ngFor="let tempProductCategory of productCategories"><a class="dropdown-item" routerLink="/products/catid/{{tempProductCategory.catid}}/{{tempProductCategory.categoryname}}">{{tempProductCategory.categoryname}}</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- loop over the collection of products -->
+            <div *ngFor="let tempProduct of products" id="product" class="col-md-3 w-25">
+                <div class="product-box">
+                    <div class="pro">
+                        <a routerLink="/products/{{tempProduct.pdtid}}">
+                            <img src="{{ tempProduct.imageUrl }}" alt="" class="img-responsive" height="180">
+
+                            <div class="des">
+                                <span>{{ currentCategoryName }}</span>
+                                <h5>{{ tempProduct.name }}</h5>
+                                <h4>{{ tempProduct.unitPrice | currency:'SGD' : 'symbol-narrow' }}
+                                </h4>
+                            </div>
+                        </a>
+                        <!-- <div class="price">S$4</div> -->
+                        <!-- <button (click)="addToCart(tempProduct)" class="btn btn-primary btn-sm">Add to Cart</button> -->
+                        <a (click)="addToCart(tempProduct)" *ngIf="tempProduct.unitsInStock != '0'" id="cart[{{tempProduct.pdtid}}]"><i class="fa fa-shopping-cart cart"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div style="float:right; padding: 10px;">
+                                    <p><small *ngIf="!isLoggedIn" class="text-danger">Only sellers can add products. Please <a routerLink="/auth" class="text-decoration-none">Login</a> to proceed</small></p>
+                                    <button routerLink="/addproduct" class="btn checkout-button" style="background-color: #088178; color: #fff;" [disabled]="!isLoggedIn">Add Product</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+<div class="section-p1">
+    <div class="section-content section-content-p30">
+         
+                <h4>Below are your order details:</h4>
+
+                <!-- Order Details -->
+                <div class="form-area" >
+                    <p>Total Quantity: {{ totalQuantity }}</p>
+                    <p>Shipping: Free</p>
+                    <p>Payment: Cash On Delivery</p>
+                    <p>Total Price: {{ totalPrice | currency:'SGD' : 'symbol-narrow'  }}</p>
+                </div>
+                
+                <div>
+                    <button type="submit" (click)="onSubmit()" [disabled]="customer.name==null"  routerLink="/products" class="btn" style="background-color: #088178; color: #fff;">{{customer.name==null?"Loading...":"Purchase Now"}}</button>
+                </div>
+            
+        
+    </div>
+</div>

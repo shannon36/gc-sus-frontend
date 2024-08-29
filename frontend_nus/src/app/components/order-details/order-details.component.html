@@ -1,0 +1,43 @@
+<div class="container">
+    <div class="row justify-content-center my-5">
+        <div class="col-md-8">
+            <table class="table">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tr *ngFor="let item of items">
+                    <td>
+                        <img src="{{item.imageUrl}}" alt="" class="img-responsive" width="150px">
+                    </td>
+                    <td>
+                        <p>{{item.name}}</p>
+                    </td>
+                    <td>
+                        <p>{{item.pdtid ? itemQty[item.pdtid] : ""}}</p>
+                    </td>
+                    <td>
+                        <p>{{item.pdtid ? subTotal[item.pdtid] : ""}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <p style="text-align: right; font-weight: bold;">Total Price</p>
+                    </td>
+                    <td>
+                        <p>{{total}}</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <button class="btn btn-sm float-left" id="back-button" routerLink="/order-history">Back</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,193 @@
+<section id="auth">
+  <!-- if user  auth, show profile and logout button -->
+  <div *ngIf="isLoggedIn">
+    <div class="row justify-content-center mt-5">
+      <div class="col-4">
+        <div class="cart">
+          <div class="cart-body">
+            <div class="row">
+              <div class="col text-center">
+                <p>{{userEmail}}</p>
+                <i class="fa fa-angle-right" aria-hidden="true"></i><a href="/order-history" style="font-size: 12px; text-decoration: none;"> View Order History</a>
+                <p></p>
+              </div>
+            </div>
+
+            <div class="row mb-5">
+              <div class="col text-center">
+                <button type="button" (click)="logout()" class="btn btn-sm btn-success">
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- if user not auth, show sign up or register -->
+  <div *ngIf="!isLoggedIn">
+
+    <div class="row justify-content-center mt-5">
+      <div class="col-4">
+        <div class="card">
+          <!-- sign up -->
+          <div *ngIf="showSignUp">
+            <div *ngIf="!isShowOTP">
+              <div class="card-body">
+
+                <!-- email textfield -->
+                <div class="row mb-2">
+                  <div class="col">
+                    <div>
+                      <label for="email" class="form-label">Email:</label>
+
+                    </div>
+                    <input type="email" id="email" name="email" #email="ngModel" [(ngModel)]="user.email"
+                      class="form-control form-control-sm">
+                  </div>
+                </div>
+
+              <!-- name textfield -->
+              <div class="row mb-2">
+                <div class="col">
+                  <div>
+                    <label for="name" class="form-label">Name:</label>
+
+                  </div>
+                  <input type="name" id="name" name="name" #name="ngModel" [(ngModel)]="user.name"
+                    class="form-control form-control-sm">
+                </div>
+              </div>
+
+                <!-- password textfield -->
+                <div class="row">
+                  <div class="col">
+                    <div>
+                      <label for="password" class="form-label">New Password:</label>
+                    </div>
+
+                    <input [type]="user.showPassword ? 'text' : 'password'" id="password" name="password"
+                      #password="ngModel" [(ngModel)]="user.password" class="form-control form-control-sm">
+
+                  </div>
+                </div>
+                <div style="height:15px;"></div>
+
+                <!-- sign up button -->
+                <div class="row" *ngIf="!hideSignUpButton">
+                  <div class="col d-grid">
+                    <button type="button" (click)="signUp()" class="btn btn-sm btn-success" [disabled]="loading">
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                        *ngIf="loading"></span>
+                      Register
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- show confirmation code and enter field -->
+            <div class="card-body" *ngIf="isShowOTP">
+              <div class="row">
+                <div class="col">
+                  <div style="width:100px;">
+                    <label for="code" class="form-label">OTP From Email:</label>
+                  </div>
+                  <input type="text" id="code" name="code" #code="ngModel" [(ngModel)]="user.code"
+                    class="form-control form-control-sm">
+                </div>
+              </div>
+              <div style="height:15px;"></div>
+
+              <div class="row" *ngIf="!hideSignUpButton">
+                <div class="col d-grid">
+                  <button type="button" (click)="submitOTP()" class="btn btn-sm btn-success">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      *ngIf="loading"></span>
+                    Confirm OTP
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- login -->
+          <div *ngIf="!showSignUp">
+            <div class="card-body">
+
+              <!-- email -->
+              <div class="row mb-2">
+                <div class="col">
+                  <div>
+                    <label for="email" class="form-label">Email:</label>
+                  </div>
+                  <input type="email" id="email" name="email" #email="ngModel" [(ngModel)]="user.email"
+                    class="form-control form-control-sm">
+                </div>
+              </div>
+
+              <!-- password -->
+              <div class="row">
+                <div class="col">
+                  <div>
+                    <label for="password" class="form-label">Password:</label>
+                  </div>
+                  <input [type]="user.showPassword ? 'text' : 'password'" id="password" name="password"
+                    #password="ngModel" [(ngModel)]="user.password" class="form-control form-control-sm">
+
+                </div>
+              </div>
+              <div style="height:15px;"></div>
+              <!-- sign in button -->
+              <div class="row">
+                <div class="col d-grid">
+                  <button type="button" (click)="signIn()" class="btn btn-sm btn-success" [disabled]="loading">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      *ngIf="loading"></span>
+                    Sign in
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div style="height:15px;"></div>
+
+          <!-- switch register/sign in button -->
+          <div class="text-center">
+            <p>{{showSignUp?'Already have an account? ':'Not a member? '}}<button (click)="onChangeShowSignUp($event)"
+                style="
+      color: blue;
+      font-size: 11.5px;
+      align-items: center;
+      vertical-align: center;
+
+      padding: 0;
+      border: none;
+      background: none;" *ngIf="!hideSignUpButton &&!loading">
+                {{showSignUp?'Login here':'Register'}}
+              </button></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- error message -->
+    <div *ngIf="(!isShowErrorMessage&&!isShowProgressMessage)" style="height: 30px;"></div>
+    <p *ngIf="isShowErrorMessage" class="text-danger text-center">
+      {{errorMessage}}
+    </p>
+    <!-- progress message -->
+
+    <!-- <div *ngIf="isShowProgressMessage" style="color: blue; height: 30px; font-size: 16px;">
+      {{progressMessage}}
+    </div> -->
+    <div style="height: 10px;">
+
+    </div>
+
+  </div>
+</section>

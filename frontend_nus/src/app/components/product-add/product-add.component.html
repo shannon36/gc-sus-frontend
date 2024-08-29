@@ -1,0 +1,48 @@
+<div class="section-content section-content-p30">
+	<div class="container">
+		<div class="row" style="padding:20px;">
+			<div class="col">
+				<a href="/check-products" class="btn btn-sm" style="background-color: #088178; color: #fff;">Product Lists</a>
+			</div>
+		</div>
+
+		<div class="row" style="padding:20px;">
+			<h2>Add Product</h2><br><br>
+			<form class="form" (ngSubmit)="onSubmit()" [formGroup]="productForm">
+				<div class="form-group">
+					<input type="hidden" id="sellerid" value="{{userId}}" class="form-control" ngModel>
+				</div>
+				<div class="form-group">
+					<label for="catid">Category ID:</label><br>
+					<!-- <input type="text" id="catid" formControlName="catid" class="form-control" ngModel> -->
+					<select class="form-select" aria-label="Default select example" id="catid" formControlName="catid">
+						<option value="{{tempProductCategory.catid}}" *ngFor="let tempProductCategory of productCategories">{{tempProductCategory.categoryname}}</option>
+					</select>
+				</div>
+				<br>
+				<div class="form-group">
+					<label for="name">Product Name:</label><br>
+					<input type="text" id="name" formControlName="name" class="form-control" ngModel>
+				</div>
+				<br>
+				<div class="form-group">
+					<label for="desc">Product Description:</label><br>
+					<input type="text" id="description" formControlName="description" class="form-control" ngModel>
+				</div>
+				<br>
+				<div class="form-group">
+					<label for="price">Unit Price:</label><br>
+					<input type="number" id="unitPrice" formControlName="unitPrice" class="form-control" min="1" ngModel>
+				</div>
+				<br>
+				<div class="form-group">
+					<label for="stock">Unit Stock:</label><br>
+					<input type="number" id="unitsInStock" formControlName="unitsInStock" class="form-control" min="1" ngModel>
+				</div>
+				<br>
+				<button type="submit" class="btn checkout-button"
+					style="background-color: #088178; color: #fff;">Submit</button>
+			</form>
+		</div>
+	</div>
+</div>

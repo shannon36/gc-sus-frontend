@@ -1,0 +1,32 @@
+<div class="container">
+    <div class="row justify-content-center my-5">
+        <div class="col-md-8" *ngIf="orders.length > 0;else noOrder">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Order ID</th>
+                        <th scope="col">Order Created Date</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let order of orders">
+                        <th scope="row">{{order.orderid}}</th>
+                        <td>{{order.dateCreated | date: 'dd/MM/yyyy'}}</td>
+                        <td><button type="button" class="btn btn-sm" routerLink="/order-details/{{order.orderid}}" style="background-color: #088178; color: #fff;">View Details</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <ng-template #noOrder>
+            <div class="col-md-8">
+                <p>You do not have any order yet!!</p>
+            </div>
+        </ng-template>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <button class="btn btn-sm float-left" id="back-button" routerLink="/auth">Back</button>
+        </div>
+    </div>
+</div>

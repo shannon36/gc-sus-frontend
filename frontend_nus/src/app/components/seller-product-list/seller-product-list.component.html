@@ -1,0 +1,38 @@
+<div class="container">
+    <div class="row justify-content-center my-5">
+        <!-- <div class="col-md-8" *ngIf="products.length > 0;else noProduct"> -->
+            <div class="col-md-8"></div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Units In Stock</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let product of products">
+                        <td>{{product.pdtid}}</td>
+                        <td>{{product.name}}</td>
+                        <td>{{product.unitPrice}}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff;" disabled>Update</button>
+                            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff;" disabled>Delete</button>
+                        </td>
+                    <!-- </tr> -->
+                </tbody>
+            </table>
+        <!-- </div> -->
+        <!-- <ng-template #noProduct>
+            <div class="col-md-8">
+                <p>You do not have any order yet!!</p>
+            </div>
+        </ng-template> -->
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <button class="btn btn-sm float-left" id="back-button" routerLink="/addproduct">Back</button>
+        </div>
+    </div>
+</div>

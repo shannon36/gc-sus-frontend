@@ -1,0 +1,178 @@
+<!-- <section id="header">
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+  <a href="index.html"><img src="/assets/image/logo.png" class="logo" alt="" style="width: 120px; height: 100px" /></a>
+  <h2>{{isLoggedIn?"Profile":"Login/ Sign Up"}}</h2>
+  <div>
+    <ul id="navbar">
+      <li>
+        <a class="active">
+          {{isLoggedIn?userEmail:"Login"}}</a>
+      </li>
+      <li><a href="index.html">Home</a></li> -->
+      <!-- <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">About</a></li>       -->
+      <!-- <li><a>Shop</a></li>
+      <li><a>About</a></li>
+      <li>
+        <a routerLink = "/cart"><i class="fa fa-shopping-cart"></i></a>
+      </li>
+    </ul>
+  </div>
+</section> -->
+
+<section id="auth">
+    <!-- if user  auth, show profile and logout button -->
+    <div *ngIf="isLoggedIn">
+      <button (click)="logout()">
+        Logout
+      </button>
+    </div>
+    <!-- if user not auth, show sign up or register -->
+    <div *ngIf="!isLoggedIn">
+  
+   
+      <!-- sign up -->
+      <div *ngIf="showSignUp" class="row justify-content-center my-5">
+        <div class="col-4">
+          <div class="card">
+            <!-- normal sign up -->
+            <div *ngIf="!isShowOTP">
+              <div class="card-body">
+                <!-- email textfield -->
+  
+                <div class="row">
+                  <div class="col mb-2">
+                    <div style="width:100px;">
+                      <label for="email" class="form-label">Email:</label>
+  
+                    </div>
+                    <input type="email" id="email" name="email" #email="ngModel" [(ngModel)]="user.email"
+                      class="form-control form-control-sm">
+                  </div>
+                </div>
+                <!-- password textfield -->
+  
+                <div class="row">
+                  <div class="col">
+                    <div style="width:100px;">
+                      <label  for="password" class="form-label" > {{showSignUp?"New Password:":"Password:"}}</label>
+  
+                    </div>
+  
+                    <input [type]="user.showPassword ? 'text' : 'password'" id="password" name="password"
+                    #password="ngModel" [(ngModel)]="user.password" class="form-control form-control-sm">
+             
+                  </div>
+                </div>            <div style="height:15px;"></div>
+  
+                <!-- sign up button -->
+                <div class="row" *ngIf="!hideSignUpButton">
+                  <div class="col d-grid">
+                    <button type="button" (click)="signUp()" class="btn btn-sm btn-success" [disabled]="loading">
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                        *ngIf="loading"></span>
+                      Register
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- show confirmation code and enter field -->
+            <div class="card-body" *ngIf="isShowOTP">
+              <div class="row">
+                <div class="col">
+                  <div style="width:100px;">
+                    <label for="code" class="form-label">OTP From Email:</label>
+  
+                  </div>
+                  <input type="text" id="code" name="code" #code="ngModel" [(ngModel)]="user.code"
+                    class="form-control form-control-sm">
+                </div>
+              </div>
+                  <div style="height:15px;"></div>
+  
+              <div class="row" *ngIf="!hideSignUpButton">
+                <div class="col d-grid">
+                  <button type="button" (click)="submitOTP()" class="btn btn-sm btn-success">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      *ngIf="!loading"></span>
+                    Confirm
+                  </button>
+                </div>
+              </div>
+  
+            </div>
+  
+  
+          </div>
+        </div>
+      </div>
+      <!-- login -->
+      <div *ngIf="!showSignUp" class="row justify-content-center my-5" >
+        <div class="col-4">
+          <div class="card">
+            <div class="card-body">
+  
+              <!-- email -->
+              <div class="row">
+                <div class="col">
+                  <div style="width:100px;">
+                    <label for="email" class="form-label">Email:</label>
+                  </div>
+                  <input type="email" id="email" name="email" #email="ngModel" [(ngModel)]="user.email"
+                    class="form-control form-control-sm">
+                </div>
+              </div>
+  
+              <!-- password -->
+              <div class="row" >
+                <div class="col">
+                  <div style="width:100px;">
+                    <label for="password" class="form-label">Password:</label>
+                  </div>
+                  <input [type]="user.showPassword ? 'text' : 'password'" id="password" name="password"
+                  #password="ngModel" [(ngModel)]="user.password" class="form-control form-control-sm">
+              
+                </div>
+              </div>
+              <div style="height:15px;"></div>
+              <!-- sign in button -->
+              <div class="row">
+                <div class="col d-grid">
+                  <button type="button" (click)="signIn()" class="btn btn-sm btn-success" [disabled]="loading">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      *ngIf="loading"></span>
+                    Sign in
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- error message -->
+      <div *ngIf="(!isShowErrorMessage&&!isShowProgressMessage)" style="height: 30px;" ></div>
+      <div *ngIf="isShowErrorMessage" style="color: red; height: 30px; font-size: 16px;">
+        {{errorMessage}}
+      </div>
+      <!-- progress message -->
+  
+      <div *ngIf="isShowProgressMessage" style="color: blue; height: 30px; font-size: 16px;">
+        {{progressMessage}}
+      </div>
+      <div style="height: 10px;">
+  
+      </div>
+      <!-- switch register/sign in button -->
+      <button (click)="onChangeShowSignUp()" style="
+      color: blue;
+      font-size: 11px;
+      padding: 0;
+      border: none;
+      background: none;" *ngIf="!hideSignUpButton ||loading">
+        {{showSignUp?'Click here to Sign In':'Click here to Register'}}
+   
+      </button>
+    </div>
+  </section>
