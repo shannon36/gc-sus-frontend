@@ -41,7 +41,7 @@ jobs:
         docker tag ghcr.io/shannon36/gc-sus-frontend:latest ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
         docker push ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
 
-  update-backend-manifest:
+  update-frontend-manifest:
     runs-on: ubuntu-latest
     needs: build
 
