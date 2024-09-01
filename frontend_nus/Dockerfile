@@ -22,5 +22,4 @@ RUN npm run build
 EXPOSE 80
 
 # Start the Node.js application
-CMD [ "npm", "start", "--", "--host", "0.0.0.0" ]
-#"--port", "80" ,
+CMD [ "npm", "start", "--",--port", "80","--host", "0.0.0.0" ]
