@@ -66,3 +66,9 @@ jobs:
         git push origin main
       env:
         GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
+
+    - name: Deploy to GH Pages 🚀
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.ACTION_TOKEN }}
+        publish_dir: public
