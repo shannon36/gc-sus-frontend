@@ -37,7 +37,7 @@ jobs:
     - name: Build Docker image
       run: |
         cd frontend_nus
-        docker build -t ghcr.io/shannon36/gc-sus-frontend .
+        docker build -t ghcr.io/shannon36/shannon36.github.io .
 
     # name: Test Docker image
     #   run: |
@@ -45,8 +45,8 @@ jobs:
 
     - name: Push Docker image
       run: |
-        docker tag ghcr.io/shannon36/gc-sus-frontend:latest ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
-        docker push ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
+        docker tag ghcr.io/shannon36/shannon36.github.io:latest ghcr.io/shannon36/shannon36.github.io:${{ github.sha }}
+        docker push ghcr.io/shannon36/shannon36.github.io:${{ github.sha }}
 
   update-frontend-manifest:
     runs-on: ubuntu-latest
@@ -60,7 +60,7 @@ jobs:
     - name: Commit and push changes
       run: |
         echo "Replacing tag with SHA: ${{ github.sha }}"
-        sed -i "s/image:.*/image: ghcr.io\/shannon36\/gc-sus-frontend:${{ github.sha }}/" ./gc-sus-deployment/frontend/deployment.yaml
+        sed -i "s/image:.*/image: ghcr.io\/shannon36\/shannon36.github.io:${{ github.sha }}/" ./gc-sus-deployment/frontend/deployment.yaml
         cd ./gc-sus-deployment
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
