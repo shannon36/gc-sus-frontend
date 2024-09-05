@@ -38,8 +38,8 @@ jobs:
 
     - name: Push Docker image
       run: |
-        docker tag ghcr.io/shannon36/shannon36.github.io:latest ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
-        docker push ghcr.io/shannon36/shannon36.github.io:${{ github.sha }}
+        docker tag ghcr.io/shannon36/gc-sus-frontend:latest ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
+        docker push ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
 
   update-frontend-manifest:
     runs-on: ubuntu-latest
