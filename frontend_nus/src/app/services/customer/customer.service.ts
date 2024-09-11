@@ -8,13 +8,14 @@ import { Customer } from 'src/app/common/customer';
 })
 export class CustomerService {
   // private baseUrl = 'https://smartcart.nus.yaphanyee.com';
-  private baseUrl = 'http://localhost:9090';
+  // private baseUrl = 'http://localhost:9090';
+  private baseUrl = 'http://139.144.127.76:8080';
 
   constructor(private httpClient: HttpClient) { }
 
   getCustomerInformation(email: string): Observable<Customer> {
     //const url = `${this.baseUrl}/Customers/customersEmail?custEmail=${email}`;
-    const url = `${this.baseUrl}/User/userEmail?userEmail=${email}`;
+    const url = `${this.baseUrl}/Users/userEmail?custEmail=${email}`;
 
     return this.httpClient.get<Customer>(url);
   }

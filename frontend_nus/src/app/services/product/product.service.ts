@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { Product } from '../../common/product';
@@ -10,7 +10,8 @@ import { ProductCategory } from 'src/app/common/product-category';
 export class ProductService {
 
   // private categoryUrl = 'http://localhost:8080/api/product-category';
-  private baseUrl = 'http://localhost:9090';
+  // private baseUrl = 'http://localhost:9090';
+  private baseUrl = 'http://139.144.127.76:8080';
   // private baseUrl = 'https://smartcart.nus.yaphanyee.com';
 
   constructor(private httpClient: HttpClient) { }
@@ -32,7 +33,8 @@ export class ProductService {
     );
   }
 
-  getProduct(theProductId: string): Observable<Product> {console.log(theProductId)
+  getProduct(theProductId: string): Observable<Product> {
+    console.log(theProductId)
     // need to build url based on product id
     const productUrl = `${this.baseUrl}/Products/getProductsByProductId?pdtId=${theProductId}`;
 
@@ -45,15 +47,53 @@ export class ProductService {
 
     return this.httpClient.get<Product[]>(url);
   }
-  
-  saveNewProduct(product: Product): Observable<any> {
+
+  saveNewProduct(product: Product): Observable<String> {
     const productUrl = `${this.baseUrl}/Products/saveNewProduct`;
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'accept': '*/*',
     });
-    const options = { headers };
-    return this.httpClient.post<Object>(productUrl, product, options);
+    const options = {
+      headers,
+      responseType: 'text' as 'json'  // Set the response type to 'text'
+    };
+
+    return this.httpClient.post<string>(productUrl, product, options);
+  }
+
+  // deleteProduct(req?: any): Observable<string> {
+  //   const productUrl = `${this.baseUrl}/Products/deleteProductByProductId`;
+  //   const headers = new HttpHeaders({
+  //     'Content-Type': 'application/json',
+  //     'accept': '*/*',
+  //   });
+  //   const options = {
+  //     headers,
+  //     responseType: 'text' as 'json'  // Set the response type to 'text'
+  //   };
+
+  //   return this.httpClient.post<string>(productUrl, req, options);
+  // }
+
+  deleteProduct(pdtId: string): Observable<string> {
+    const productUrl = `${this.baseUrl}/Products/deleteProductByProductId`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+    });
+
+    // Create HttpParams to include pdtId as a query parameter
+    const params = new HttpParams().set('pdtId', pdtId);
+
+    const options = {
+      headers,
+      params,
+      responseType: 'text' as 'json' // Set the response type to 'text'
+    };
+
+    // Use POST instead of DELETE if the backend expects POST
+    return this.httpClient.post<string>(productUrl, {}, options);
   }
 }
 

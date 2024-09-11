@@ -20,13 +20,12 @@ export class ProductAddComponent implements OnInit {
   userEmail: string = "";
   userId: any;
   productForm = this.fb.group({
-    sellerid: ['4070d90c-a2af-4964-a1d6-878dc82accdf', Validators.required],
+    sellerid: ['', Validators.required],
     catid: ['', Validators.required],
     name: ['', Validators.required],
     description: ['', Validators.required],
-    unitPrice: ['', Validators.required],
-    unitsInStock: ['', Validators.required],
-    imageUrl: ['assets/image/logo.png', Validators.required],
+    unitPrice: [0, Validators.required],
+    unitsInStock: [0, Validators.required],
     dateCreated: [new Date(), Validators.required],
     lastUpdated: [new Date(), Validators.required]
   });
@@ -86,22 +85,22 @@ export class ProductAddComponent implements OnInit {
     this.isSubmitted = true;
 
     this.product = {
-      "pdtid": "",
-      "sellerid": "4070d90c-a2af-4964-a1d6-878dc82accdf",
-      "catid": this.productForm.value.catid ? this.productForm.value.catid : "",
-      "name": this.productForm.value.name ? this.productForm.value.name : "",
-      "description": this.productForm.value.description ? this.productForm.value.description : "",
-      "unitPrice": this.productForm.value.unitPrice ? +this.productForm.value.unitPrice : 1,
-      "imageUrl": "assets/image/logo.png",
-      "unitsInStock": this.productForm.value.unitsInStock ? this.productForm.value.unitsInStock : "",
-      "dateCreated": new Date(),
-      "lastUpdated": new Date()
+      pdtid: "",
+      sellerid: this.userId,
+      catid: this.productForm.value.catid ? this.productForm.value.catid : "",
+      name: this.productForm.value.name ? this.productForm.value.name : "",
+      description: this.productForm.value.description ? this.productForm.value.description : "",
+      unitPrice: this.productForm.value.unitPrice ? +this.productForm.value.unitPrice : 1,
+      unitsInStock: this.productForm.value.unitsInStock ? this.productForm.value.unitsInStock : 0,
+      dateCreated: new Date(),
+      lastUpdated: new Date()
     }
 
     this.productService.saveNewProduct(this.product).subscribe({
       next: response => {
-        console.log(response)
-        alert("Your order has beeen received.");
+        console.log(response);
+        this.productForm.reset();
+        alert("Product successfully added!");
 
       },
       error: err => {
