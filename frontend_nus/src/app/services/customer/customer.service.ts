@@ -15,7 +15,7 @@ export class CustomerService {
 
   getCustomerInformation(email: string): Observable<Customer> {
     //const url = `${this.baseUrl}/Customers/customersEmail?custEmail=${email}`;
-    const url = `${this.baseUrl}/Users/userEmail?custEmail=${email}`;
+    const url = `${this.baseUrl}/Users/userEmail?email=${email}`;
 
     return this.httpClient.get<Customer>(url);
   }
