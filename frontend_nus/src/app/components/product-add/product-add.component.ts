@@ -19,12 +19,17 @@ export class ProductAddComponent implements OnInit {
   isAuth: any;
   userEmail: string = "";
   userId: any;
+
+  selectedImage?: File;
+
+
   productForm = this.fb.group({
     sellerid: ['', Validators.required],
     catid: ['', Validators.required],
     name: ['', Validators.required],
     description: ['', Validators.required],
     unitPrice: [0, Validators.required],
+    imageUrl: ['', Validators.required],
     unitsInStock: [0, Validators.required],
     dateCreated: [new Date(), Validators.required],
     lastUpdated: [new Date(), Validators.required]
@@ -45,6 +50,11 @@ export class ProductAddComponent implements OnInit {
     this.listProductCategories();
   }
 
+  onImageChange(event: any) {
+    if (event.target.files.length > 0) {
+      this.selectedImage = event.target.files[0];
+    }
+  }
   async getUserInformation() {
     this.userEmail = '';
     this.userId = '';
@@ -91,22 +101,26 @@ export class ProductAddComponent implements OnInit {
       name: this.productForm.value.name ? this.productForm.value.name : "",
       description: this.productForm.value.description ? this.productForm.value.description : "",
       unitPrice: this.productForm.value.unitPrice ? +this.productForm.value.unitPrice : 1,
+      imageUrl: this.selectedImage,
       unitsInStock: this.productForm.value.unitsInStock ? this.productForm.value.unitsInStock : 0,
       dateCreated: new Date(),
       lastUpdated: new Date()
     }
 
-    this.productService.saveNewProduct(this.product).subscribe({
-      next: response => {
-        console.log(response);
-        this.productForm.reset();
-        alert("Product successfully added!");
+    console.log("Product", this.product);
 
-      },
-      error: err => {
-        alert(`There was an error: ${err.message}`);
-      }
-    });
+    // this.productService.saveNewProduct(this.product).subscribe({
+    //   next: response => {
+    //     console.log(response);
+    //     this.productForm.reset();
+    //     alert("Product successfully added!");
+
+    //   },
+    //   error: err => {
+    //     alert(`There was an error: ${err.message}`);
+    //   }
+    // });
 
   }
+
 }

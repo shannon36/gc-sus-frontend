@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Product } from 'src/app/common/product';
+import { ProductCategory } from 'src/app/common/product-category';
 import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
 import { ProductService } from 'src/app/services/product/product.service';
 
@@ -15,9 +16,19 @@ export class SellerProductListComponent {
   userEmail: string | undefined;
   userId!: string;
   products: Product[] = [];
+  selectedProduct!: Product;
 
   customerService: any;
   userName: any;
+
+  showUpdateDialog!: boolean;
+  productCategories: ProductCategory[] = [];
+  selectedCategory!: string;
+  selectedCatid!: string;
+  productName!: string;
+  description!: string;
+  unitPrice!: number;
+  stock!: number;
 
   constructor(
     private cognitoService: CognitoService,
@@ -26,6 +37,12 @@ export class SellerProductListComponent {
 
   ngOnInit(): void {
     this.handleProductLists();
+    this.productService.getProductCategories().subscribe(
+      data => {
+        // console.log("Product Categories="+JSON.stringify(data));
+        this.productCategories = data;
+      }
+    );
   }
 
   // async handleProductLists() {
@@ -72,12 +89,23 @@ export class SellerProductListComponent {
           data => {
             console.log("Product List Updated", data);
             this.products = data;
+            this.products.map(p => {
+              this.productService.getProductCategoryById(p.catid!).subscribe(
+                (res: Product) => {
+                  console.log("RES", res);
+                  p.categoryname = res?.categoryname;
+                }
+              );
+              return p;
+            })
           },
           error => {
             console.log("Error fetching products", error);
           }
         );
       }
+
+
     } else {
       this.router.navigate(['/auth'])
     }
@@ -100,11 +128,38 @@ export class SellerProductListComponent {
       console.log("Product ID is undefined or null");
     }
   }
-  
+
 
 
   updateProduct(p: Product): void {
+    this.showUpdateDialog = true;
+    this.selectedProduct = p;
+    this.selectedCatid = p.catid ?? "";
+    this.productName = p.name ?? "";
+    this.description = p.description ?? "";
+    this.unitPrice = p.unitPrice ?? 0;
+    this.stock = p.unitsInStock ?? 0;
     console.log("UPDATE", p);
   }
 
+  close(): void {
+    this.showUpdateDialog = false;
+  }
+
+  save(): void {
+    console.log("SAVE");
+  }
+
+  validateWholeNumber(value: string) {
+    console.log("validateWholeNumber")
+    // Regular expression to match whole numbers only
+    const isWholeNumber = /^\d+$/.test(value);
+    
+    if (!isWholeNumber) {
+      this.stock = 0; // Reset to null or previous valid value
+      // Handle invalid input logic here
+      
+      console.log("help!")
+    }
+  }
 }

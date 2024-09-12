@@ -1,28 +1,35 @@
 <div class="container">
     <div class="row justify-content-center my-5">
         <!-- <div class="col-md-8" *ngIf="products.length > 0;else noProduct"> -->
-            <div class="col-md-8"></div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Product Name</th>
-                        <th scope="col">Units In Stock</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let product of products">
-                        <td>{{product.pdtid}}</td>
-                        <td>{{product.name}}</td>
-                        <td>{{product.unitPrice}}</td>
-                        <td>
-                            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff; margin-right: 8px;" (click)="updateProduct(product)">Update</button>
-                            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff;" (click)="deleteProduct(product)">Delete</button>
-                        </td>
+        <div class="col-md-8"></div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Unit Price</th>
+                    <th scope="col">Unit In Stock</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let product of products">
+                    <td>{{product.pdtid}}</td>
+                    <td>{{product.categoryname}}</td>
+                    <td>{{product.name}}</td>
+                    <td>{{product.unitPrice}}</td>
+                    <td>{{product.unitsInStock}}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm"
+                            style="background-color: #088178; color: #fff; margin-right: 8px;"
+                            (click)="updateProduct(product)">Update</button>
+                        <button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+                            (click)="deleteProduct(product)">Delete</button>
+                    </td>
                     <!-- </tr> -->
-                </tbody>
-            </table>
+            </tbody>
+        </table>
         <!-- </div> -->
         <!-- <ng-template #noProduct>
             <div class="col-md-8">
@@ -30,9 +37,47 @@
             </div>
         </ng-template> -->
     </div>
-    <div class="row justify-content-center">
+    <div class="row justify-content-start">
         <div class="col-md-8">
             <button class="btn btn-sm float-left" id="back-button" routerLink="/addproduct">Back</button>
+        </div>
+    </div>
+</div>
+
+<!--UPDATE DIALOG-->
+<div class="popup-overlay" *ngIf="showUpdateDialog">
+    <div class="popup-content">
+        <label class="popup-title">Update Product Details</label>
+        <div class="popup-field">
+            <label>Category:</label>
+            <select class="form-select mb-2" id="catid" [(ngModel)]="selectedCatid" disabled>
+                <option *ngFor="let tempProductCategory of productCategories" [value]="tempProductCategory.catid">
+                    {{tempProductCategory.categoryname}}
+                </option>
+            </select>
+            <label>Product Name:</label>
+            <input type="text" id="name" [(ngModel)]="productName" maxlength="60" class="form-control mb-2" ngModel>
+            <label>Product Description:</label>
+            <input type="text" id="description" [(ngModel)]="description" maxlength="100" class="form-control mb-2"
+                ngModel>
+            <label>Unit Price</label>
+            <input type="number" id="unitPrice" [(ngModel)]="unitPrice" class="form-control mb-2" min="0" ngModel>
+            <label>Unit Stock:</label>
+            <input type="number" id="unitsInStock" [(ngModel)]="stock" name="unitsInStock" class="form-control mb-2"
+                step="1" min="0" #unitsInStockModel="ngModel" (ngModelChange)="validateWholeNumber($event)"
+                [required]="true">
+            <div *ngIf="unitsInStockModel.errors?.['required']">
+                <p class="text-danger">This field is required.</p>
+            </div>
+            <div *ngIf="unitsInStockModel.errors?.['pattern']">
+                <p class="text-danger">Please enter a valid whole number.</p>
+            </div>
+        </div>
+        <div class="popup-actions">
+            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff; margin-right: 8px;"
+                (click)="save()">Save</button>
+            <button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+                (click)="close()">Close</button>
         </div>
     </div>
 </div>

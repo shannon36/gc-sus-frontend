@@ -48,6 +48,12 @@ export class ProductService {
     return this.httpClient.get<Product[]>(url);
   }
 
+  getProductCategoryById(pdtCatId : string): Observable<Product> {
+    const url = `${this.baseUrl}/ProductCategoryController/getProductCategoryById?pdtCatId=${pdtCatId}`;
+
+    return this.httpClient.get<Product>(url);
+  }
+
   saveNewProduct(product: Product): Observable<String> {
     const productUrl = `${this.baseUrl}/Products/saveNewProduct`;
     const headers = new HttpHeaders({

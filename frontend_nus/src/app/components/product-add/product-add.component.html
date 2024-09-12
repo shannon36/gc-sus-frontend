@@ -2,7 +2,8 @@
 	<div class="container">
 		<div class="row" style="padding:20px;">
 			<div class="col">
-				<a href="/check-products" class="btn btn-sm" style="background-color: #088178; color: #fff;">Product Lists</a>
+				<a href="/check-products" class="btn btn-sm" style="background-color: #088178; color: #fff;">Product
+					Lists</a>
 			</div>
 		</div>
 
@@ -13,10 +14,12 @@
 					<input type="hidden" id="sellerid" value="{{userId}}" class="form-control" ngModel>
 				</div>
 				<div class="form-group">
-					<label for="catid">Category ID:</label><br>
+					<label for="catid">Category:</label><br>
 					<!-- <input type="text" id="catid" formControlName="catid" class="form-control" ngModel> -->
 					<select class="form-select" aria-label="Default select example" id="catid" formControlName="catid">
-						<option value="{{tempProductCategory.catid}}" *ngFor="let tempProductCategory of productCategories">{{tempProductCategory.categoryname}}</option>
+						<option value="{{tempProductCategory.catid}}"
+							*ngFor="let tempProductCategory of productCategories">{{tempProductCategory.categoryname}}
+						</option>
 					</select>
 				</div>
 				<br>
@@ -31,13 +34,20 @@
 				</div>
 				<br>
 				<div class="form-group">
+					<label for="image">Product ]Image:</label><br>
+					<input type="file" id="image" (change)="onImageChange($event)" class="form-control">
+				</div>
+				<br>
+				<div class="form-group">
 					<label for="price">Unit Price:</label><br>
-					<input type="number" id="unitPrice" formControlName="unitPrice" class="form-control" min="1" ngModel>
+					<input type="number" id="unitPrice" formControlName="unitPrice" class="form-control"  min="0"
+						ngModel>
 				</div>
 				<br>
 				<div class="form-group">
 					<label for="stock">Unit Stock:</label><br>
-					<input type="number" id="unitsInStock" formControlName="unitsInStock" class="form-control" min="1" ngModel>
+					<input type="number" id="unitsInStock" formControlName="unitsInStock" class="form-control" step="1"  min="0"
+						ngModel>
 				</div>
 				<br>
 				<button type="submit" class="btn checkout-button"
