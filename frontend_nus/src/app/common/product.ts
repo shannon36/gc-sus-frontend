@@ -18,7 +18,7 @@ export class Product {
     name: string | undefined;
     description: string | undefined;
     unitPrice: number | undefined;
-    imageUrl: File | undefined;
+    imageUrl: File | string| undefined;
     unitsInStock: number | undefined;
     dateCreated: Date | undefined;
     lastUpdated: Date | undefined;

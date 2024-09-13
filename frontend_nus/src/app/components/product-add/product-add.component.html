@@ -14,9 +14,9 @@
 					<input type="hidden" id="sellerid" value="{{userId}}" class="form-control" ngModel>
 				</div>
 				<div class="form-group">
-					<label for="catid">Category:</label><br>
+					<label for="catid">Category</label><br>
 					<!-- <input type="text" id="catid" formControlName="catid" class="form-control" ngModel> -->
-					<select class="form-select" aria-label="Default select example" id="catid" formControlName="catid">
+					<select class="form-select" id="catid" formControlName="catid">
 						<option value="{{tempProductCategory.catid}}"
 							*ngFor="let tempProductCategory of productCategories">{{tempProductCategory.categoryname}}
 						</option>
@@ -24,30 +24,42 @@
 				</div>
 				<br>
 				<div class="form-group">
-					<label for="name">Product Name:</label><br>
+					<label for="name">Product Name</label><br>
 					<input type="text" id="name" formControlName="name" class="form-control" ngModel>
+					<div class="grid mt-1" *ngIf="(productForm.get('name')?.invalid && isSubmitted)">
+						<div class="errMsg">Please enter the product name to proceed.</div>
+					</div>
 				</div>
 				<br>
 				<div class="form-group">
-					<label for="desc">Product Description:</label><br>
+					<label for="desc">Product Description</label><br>
 					<input type="text" id="description" formControlName="description" class="form-control" ngModel>
+					<div class="grid mt-1" *ngIf="(productForm.get('description')?.invalid && isSubmitted)">
+						<div class="errMsg">Please enter the product description to proceed.</div>
+					</div>
 				</div>
 				<br>
 				<div class="form-group">
-					<label for="image">Product ]Image:</label><br>
+					<label for="image">Product Image</label><br>
 					<input type="file" id="image" (change)="onImageChange($event)" class="form-control">
 				</div>
 				<br>
 				<div class="form-group">
-					<label for="price">Unit Price:</label><br>
-					<input type="number" id="unitPrice" formControlName="unitPrice" class="form-control"  min="0"
-						ngModel>
+					<label for="price">Unit Price ($)</label><br>
+					<input type="number" id="unitPrice" formControlName="unitPrice" class="form-control" min="0"
+						step=".01" (input)="validatePrice($event)" ngModel>
+					<div class="grid mt-1" *ngIf="(productForm.get('unitPrice')?.invalid && isSubmitted)">
+						<div class="errMsg">Please enter the unit price to proceed.</div>
+					</div>
 				</div>
 				<br>
 				<div class="form-group">
-					<label for="stock">Unit Stock:</label><br>
-					<input type="number" id="unitsInStock" formControlName="unitsInStock" class="form-control" step="1"  min="0"
-						ngModel>
+					<label for="stock">Unit Stock</label><br>
+					<input type="number" id="unitsInStock" formControlName="unitsInStock" class="form-control" step="1"
+						min="0" (input)="validateStock($event)" ngModel>
+					<div class="grid mt-1" *ngIf="(productForm.get('unitsInStock')?.invalid && isSubmitted)">
+						<div class="errMsg">Please enter the unit stock to proceed.</div>
+					</div>
 				</div>
 				<br>
 				<button type="submit" class="btn checkout-button"

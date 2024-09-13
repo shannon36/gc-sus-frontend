@@ -68,3 +68,8 @@
     gap: 10px;
     margin-top: 15px;
 }
+
+.errMsg {
+    color: #b30909;
+    font-size: 12px;
+}

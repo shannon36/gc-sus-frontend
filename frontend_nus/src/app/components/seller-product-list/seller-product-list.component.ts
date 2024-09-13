@@ -22,6 +22,7 @@ export class SellerProductListComponent {
   userName: any;
 
   showUpdateDialog!: boolean;
+  showDeleteDialog!: boolean;
   productCategories: ProductCategory[] = [];
   selectedCategory!: string;
   selectedCatid!: string;
@@ -29,6 +30,7 @@ export class SellerProductListComponent {
   description!: string;
   unitPrice!: number;
   stock!: number;
+  selectedID!: string;
 
   constructor(
     private cognitoService: CognitoService,
@@ -113,12 +115,18 @@ export class SellerProductListComponent {
 
 
   deleteProduct(p: Product): void {
-    if (p.pdtid) {
-      this.productService.deleteProduct(p.pdtid).subscribe({
+    this.selectedID = p.pdtid ?? "";
+    this.showDeleteDialog = true;
+  }
+
+  delete(): void {
+    if (this.selectedID) {
+      this.productService.deleteProduct(this.selectedID).subscribe({
         next: (res) => {
           console.log("Delete response:", res);
-          alert(p.pdtid + " is deleted!");
-          this.handleProductLists(); // Refresh the product list
+          this.showDeleteDialog = false;
+          alert("Selcted product is deleted!");
+          this.handleProductLists();
         },
         error: err => {
           console.log("Error deleting product", err);
@@ -139,27 +147,58 @@ export class SellerProductListComponent {
     this.description = p.description ?? "";
     this.unitPrice = p.unitPrice ?? 0;
     this.stock = p.unitsInStock ?? 0;
-    console.log("UPDATE", p);
   }
 
   close(): void {
-    this.showUpdateDialog = false;
+    if (this.showUpdateDialog) {
+      this.showUpdateDialog = false;
+    } else {
+      this.showDeleteDialog = false;
+    }
+
   }
 
   save(): void {
-    console.log("SAVE");
+    if(this.validateUpdateForm()){
+      console.log("SAVE");
+    }else{
+      alert("ERROR");
+    }
+   
   }
 
-  validateWholeNumber(value: string) {
-    console.log("validateWholeNumber")
-    // Regular expression to match whole numbers only
-    const isWholeNumber = /^\d+$/.test(value);
-    
-    if (!isWholeNumber) {
-      this.stock = 0; // Reset to null or previous valid value
-      // Handle invalid input logic here
-      
-      console.log("help!")
+  validateUpdateForm(): boolean {
+    if ((this.productName == "" || this.productName == null) || (this.description == "" || this.description == null) || (this.unitPrice == null) || (this.stock == null)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  validatePrice(event: any): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    // Regular expression to match valid numbers with leading zero check
+    const validNumber = /^(0(\.\d{1,2})?|[1-9]\d*(\.\d{1,2})?)$/;
+
+    if (!validNumber.test(value)) {
+      input.value = '';
+    }
+  }
+
+  validateStock(event: any): void {
+    const input = event.target as HTMLInputElement;
+    const newValue = input.value;
+
+    // Regular expression to match valid numbers with leading zero check
+    const validNumber = /^(0|[1-9]\d*)$/;
+    const cleanedValue = newValue.replace(/[^0-9]/g, '');
+
+    if (validNumber.test(cleanedValue)) {
+      input.value = cleanedValue;
+    } else {
+      input.value = '';
     }
   }
 }

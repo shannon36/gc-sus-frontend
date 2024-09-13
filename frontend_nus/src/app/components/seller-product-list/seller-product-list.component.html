@@ -8,7 +8,7 @@
                     <th scope="col">ID</th>
                     <th scope="col">Category</th>
                     <th scope="col">Product Name</th>
-                    <th scope="col">Unit Price</th>
+                    <th scope="col">Unit Price ($)</th>
                     <th scope="col">Unit In Stock</th>
                     <th scope="col"></th>
                 </tr>
@@ -18,7 +18,7 @@
                     <td>{{product.pdtid}}</td>
                     <td>{{product.categoryname}}</td>
                     <td>{{product.name}}</td>
-                    <td>{{product.unitPrice}}</td>
+                    <td>{{product.unitPrice |number: '1.2-2'}}</td>
                     <td>{{product.unitsInStock}}</td>
                     <td>
                         <button type="button" class="btn btn-sm"
@@ -49,28 +49,34 @@
     <div class="popup-content">
         <label class="popup-title">Update Product Details</label>
         <div class="popup-field">
-            <label>Category:</label>
+            <label>Category</label>
             <select class="form-select mb-2" id="catid" [(ngModel)]="selectedCatid" disabled>
                 <option *ngFor="let tempProductCategory of productCategories" [value]="tempProductCategory.catid">
                     {{tempProductCategory.categoryname}}
                 </option>
             </select>
-            <label>Product Name:</label>
+            <label>Product Name</label>
             <input type="text" id="name" [(ngModel)]="productName" maxlength="60" class="form-control mb-2" ngModel>
-            <label>Product Description:</label>
+            <div class="grid mt-1" *ngIf="productName == '' || productName == null">
+                <div class="errMsg">Please enter the product name to proceed.</div>
+            </div>
+            <label>Product Description</label>
             <input type="text" id="description" [(ngModel)]="description" maxlength="100" class="form-control mb-2"
                 ngModel>
-            <label>Unit Price</label>
-            <input type="number" id="unitPrice" [(ngModel)]="unitPrice" class="form-control mb-2" min="0" ngModel>
-            <label>Unit Stock:</label>
-            <input type="number" id="unitsInStock" [(ngModel)]="stock" name="unitsInStock" class="form-control mb-2"
-                step="1" min="0" #unitsInStockModel="ngModel" (ngModelChange)="validateWholeNumber($event)"
-                [required]="true">
-            <div *ngIf="unitsInStockModel.errors?.['required']">
-                <p class="text-danger">This field is required.</p>
+            <div class="grid mt-1" *ngIf="description == '' || description == null">
+                <div class="errMsg">Please enter the product description to proceed.</div>
             </div>
-            <div *ngIf="unitsInStockModel.errors?.['pattern']">
-                <p class="text-danger">Please enter a valid whole number.</p>
+            <label>Unit Price ($)</label>
+            <input type="number" id="unitPrice" [(ngModel)]="unitPrice" class="form-control mb-2" min="0" step=".01"
+                (input)="validatePrice($event)" ngModel>
+            <div class="grid mt-1" *ngIf="unitPrice == null">
+                <div class="errMsg">Please enter the unit price to proceed.</div>
+            </div>
+            <label>Unit Stock</label>
+            <input type="number" id="unitsInStock" [(ngModel)]="stock" class="form-control mb-2" step="1" min="0"
+                (input)="validateStock($event)" ngModel>
+            <div class="grid mt-1" *ngIf="stock == null">
+                <div class="errMsg">Please enter the unit stock to proceed.</div>
             </div>
         </div>
         <div class="popup-actions">
@@ -81,3 +87,19 @@
         </div>
     </div>
 </div>
+
+<!--DELETE DIALOG-->
+<div class="popup-overlay" *ngIf="showDeleteDialog">
+    <div class="popup-content">
+        <label class="popup-title">Delete Product</label>
+        <div class="popup-field">
+            <span>Are you sure you want to delete the selected product? This action cannot be undone.</span>
+            <div class="popup-actions">
+                <button type="button" class="btn btn-sm"
+                    style="background-color: #088178; color: #fff; margin-right: 8px;"
+                    (click)="delete()">Confirm</button>
+                <button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+                    (click)="close()">Close</button>
+            </div>
+        </div>
+    </div>
