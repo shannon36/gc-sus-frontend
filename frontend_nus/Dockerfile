@@ -1,6 +1,10 @@
 # Use an official Node runtime as the base image
 FROM node:22.8.0-alphine
 
+#Ensure that both node_modules and package-lock.json are removed.
+COPY package.json
+RUN rm -rf node_modules package-lock.json
+
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
