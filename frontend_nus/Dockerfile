@@ -1,10 +1,6 @@
 # Use an official Node runtime as the base image
 FROM node:18.20.4
 
-#Ensure that both node_modules and package-lock.json are removed.
-COPY package.json .
-RUN rm -rf node_modules package-lock.json
-
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
