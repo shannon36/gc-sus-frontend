@@ -1,5 +1,5 @@
 # Use an official Node runtime as the base image
-FROM node:20.17.0-alphine
+FROM node:18.20.4
 
 #Ensure that both node_modules and package-lock.json are removed.
 COPY package.json .
