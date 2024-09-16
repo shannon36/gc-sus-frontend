@@ -19,14 +19,19 @@ export class ProductAddComponent implements OnInit {
   isAuth: any;
   userEmail: string = "";
   userId: any;
+
+  selectedImage?: File | string;
+
+
   productForm = this.fb.group({
-    sellerid: ['4070d90c-a2af-4964-a1d6-878dc82accdf', Validators.required],
+    sellerid: [''],
     catid: ['', Validators.required],
     name: ['', Validators.required],
     description: ['', Validators.required],
-    unitPrice: ['', Validators.required],
-    unitsInStock: ['', Validators.required],
-    imageUrl: ['assets/image/logo.png', Validators.required],
+    unitPrice: [0, Validators.required],
+    // imageUrl: ['', Validators.required], //temp commented off
+    imageUrl: [''],
+    unitsInStock: [0, Validators.required],
     dateCreated: [new Date(), Validators.required],
     lastUpdated: [new Date(), Validators.required]
   });
@@ -46,6 +51,11 @@ export class ProductAddComponent implements OnInit {
     this.listProductCategories();
   }
 
+  onImageChange(event: any) {
+    if (event.target.files.length > 0) {
+      this.selectedImage = event.target.files[0];
+    }
+  }
   async getUserInformation() {
     this.userEmail = '';
     this.userId = '';
@@ -72,42 +82,72 @@ export class ProductAddComponent implements OnInit {
       data => {
         // console.log("Product Categories="+JSON.stringify(data));
         this.productCategories = data;
+        this.productForm.get('catid')!.setValue(this.productCategories[0].catid);
       }
     );
   }
 
   onSubmit(): void {
-    // console.log(
-    //   'submitted form',
-    //   this.productForm.value,
-    //   this.productForm.invalid
-    // );
-    console.log(this.productForm.value)
     this.isSubmitted = true;
-
-    this.product = {
-      "pdtid": "",
-      "sellerid": "4070d90c-a2af-4964-a1d6-878dc82accdf",
-      "catid": this.productForm.value.catid ? this.productForm.value.catid : "",
-      "name": this.productForm.value.name ? this.productForm.value.name : "",
-      "description": this.productForm.value.description ? this.productForm.value.description : "",
-      "unitPrice": this.productForm.value.unitPrice ? +this.productForm.value.unitPrice : 1,
-      "imageUrl": "assets/image/logo.png",
-      "unitsInStock": this.productForm.value.unitsInStock ? this.productForm.value.unitsInStock : "",
-      "dateCreated": new Date(),
-      "lastUpdated": new Date()
-    }
-
-    this.productService.saveNewProduct(this.product).subscribe({
-      next: response => {
-        console.log(response)
-        alert("Your order has beeen received.");
-
-      },
-      error: err => {
-        alert(`There was an error: ${err.message}`);
+    console.log("this.productForm", this.productForm);
+    if (this.productForm.valid) {
+      this.product = {
+        pdtid: "",
+        sellerid: this.userId,
+        catid: this.productForm.value.catid ? this.productForm.value.catid : "",
+        name: this.productForm.value.name ? this.productForm.value.name : "",
+        description: this.productForm.value.description ? this.productForm.value.description : "",
+        unitPrice: this.productForm.value.unitPrice ? this.productForm.value.unitPrice : 0,
+        // imageUrl: this.selectedImage,
+        imageUrl: "",
+        unitsInStock: this.productForm.value.unitsInStock ? this.productForm.value.unitsInStock : 0,
+        dateCreated: new Date(),
+        lastUpdated: new Date()
       }
-    });
 
+      console.log("Product", this.product);
+
+      this.productService.saveNewProduct(this.product).subscribe({
+        next: response => {
+          console.log(response);
+          this.productForm.reset();
+          alert("Product successfully added!");
+
+        },
+        error: err => {
+          alert(`There was an error: ${err.message}`);
+        }
+      });
+    }
   }
+
+
+  validatePrice(event: any): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    // Regular expression to match valid numbers with leading zero check
+    const validNumber = /^(0(\.\d{1,2})?|[1-9]\d*(\.\d{1,2})?)$/;
+
+    if (!validNumber.test(value)) {
+      input.value = '';
+    }
+  }
+
+  validateStock(event: any): void {
+    const input = event.target as HTMLInputElement;
+    const newValue = input.value;
+
+    // Regular expression to match valid numbers with leading zero check
+    const validNumber = /^(0|[1-9]\d*)$/;
+    const cleanedValue = newValue.replace(/[^0-9]/g, '');
+
+    if (validNumber.test(cleanedValue)) {
+      input.value = cleanedValue;
+    } else {
+      input.value = '';
+    }
+  }
+
+
 }

@@ -6,6 +6,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { Routes, RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { HomeComponent } from './components/home/home.component';
 import { ProductListComponent } from './components/product-list/product-list.component';
@@ -68,7 +70,9 @@ const routes: Routes = [
     HttpClientModule, //to access rest api
     AppRoutingModule,
     ReactiveFormsModule, // Add ReactiveFormsModule
-    FormsModule
+    FormsModule,
+    BrowserAnimationsModule,  // Required for Angular Material
+    MatDialogModule
   ],
   providers: [ProductService],
   bootstrap: [AppComponent]

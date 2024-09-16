@@ -1,13 +1,15 @@
 # Use an official Node runtime as the base image
-FROM node:18.20.4
+FROM node:20.17.0
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
 RUN npm install -g @angular/cli
 
-# Copy the package.json and package-lock.json to the container
+#Ensure that both node_modules and package-lock.json are removed.
 COPY package*.json ./
+RUN rm -rf node_modules package-lock.json
+
 
 # Install application dependencies
 RUN npm install

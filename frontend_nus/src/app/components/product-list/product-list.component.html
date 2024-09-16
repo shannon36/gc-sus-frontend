@@ -33,7 +33,7 @@
                 <div class="product-box">
                     <div class="pro">
                         <a routerLink="/products/{{tempProduct.pdtid}}">
-                            <img src="{{ tempProduct.imageUrl }}" alt="" class="img-responsive" height="180">
+                            <!-- <img src="{{ tempProduct.imageUrl }}" alt="" class="img-responsive" height="180"> -->
 
                             <div class="des">
                                 <span>{{ currentCategoryName }}</span>
@@ -44,7 +44,7 @@
                         </a>
                         <!-- <div class="price">S$4</div> -->
                         <!-- <button (click)="addToCart(tempProduct)" class="btn btn-primary btn-sm">Add to Cart</button> -->
-                        <a (click)="addToCart(tempProduct)" *ngIf="tempProduct.unitsInStock != '0'" id="cart[{{tempProduct.pdtid}}]"><i class="fa fa-shopping-cart cart"></i></a>
+                        <a (click)="addToCart(tempProduct)" *ngIf="tempProduct.unitsInStock != 0" id="cart[{{tempProduct.pdtid}}]"><i class="fa fa-shopping-cart cart"></i></a>
                     </div>
                 </div>
             </div>

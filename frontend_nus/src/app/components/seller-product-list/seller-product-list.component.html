@@ -1,28 +1,35 @@
 <div class="container">
     <div class="row justify-content-center my-5">
         <!-- <div class="col-md-8" *ngIf="products.length > 0;else noProduct"> -->
-            <div class="col-md-8"></div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Product Name</th>
-                        <th scope="col">Units In Stock</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let product of products">
-                        <td>{{product.pdtid}}</td>
-                        <td>{{product.name}}</td>
-                        <td>{{product.unitPrice}}</td>
-                        <td>
-                            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff;" disabled>Update</button>
-                            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff;" disabled>Delete</button>
-                        </td>
+        <div class="col-md-8"></div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Unit Price ($)</th>
+                    <th scope="col">Unit In Stock</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let product of products">
+                    <td>{{product.pdtid}}</td>
+                    <td>{{product.categoryname}}</td>
+                    <td>{{product.name}}</td>
+                    <td>{{product.unitPrice |number: '1.2-2'}}</td>
+                    <td>{{product.unitsInStock}}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm"
+                            style="background-color: #088178; color: #fff; margin-right: 8px;"
+                            (click)="updateProduct(product)">Update</button>
+                        <button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+                            (click)="deleteProduct(product)">Delete</button>
+                    </td>
                     <!-- </tr> -->
-                </tbody>
-            </table>
+            </tbody>
+        </table>
         <!-- </div> -->
         <!-- <ng-template #noProduct>
             <div class="col-md-8">
@@ -30,9 +37,69 @@
             </div>
         </ng-template> -->
     </div>
-    <div class="row justify-content-center">
+    <div class="row justify-content-start">
         <div class="col-md-8">
             <button class="btn btn-sm float-left" id="back-button" routerLink="/addproduct">Back</button>
         </div>
     </div>
 </div>
+
+<!--UPDATE DIALOG-->
+<div class="popup-overlay" *ngIf="showUpdateDialog">
+    <div class="popup-content">
+        <label class="popup-title">Update Product Details</label>
+        <div class="popup-field">
+            <label>Category</label>
+            <select class="form-select mb-2" id="catid" [(ngModel)]="selectedCatid" disabled>
+                <option *ngFor="let tempProductCategory of productCategories" [value]="tempProductCategory.catid">
+                    {{tempProductCategory.categoryname}}
+                </option>
+            </select>
+            <label>Product Name</label>
+            <input type="text" id="name" [(ngModel)]="productName" maxlength="60" class="form-control mb-2" ngModel>
+            <div class="grid mt-1" *ngIf="productName == '' || productName == null">
+                <div class="errMsg">Please enter the product name to proceed.</div>
+            </div>
+            <label>Product Description</label>
+            <input type="text" id="description" [(ngModel)]="description" maxlength="100" class="form-control mb-2"
+                ngModel>
+            <div class="grid mt-1" *ngIf="description == '' || description == null">
+                <div class="errMsg">Please enter the product description to proceed.</div>
+            </div>
+            <label>Unit Price ($)</label>
+            <input type="number" id="unitPrice" [(ngModel)]="unitPrice" class="form-control mb-2" min="0" step=".01"
+                (input)="validatePrice($event)" ngModel>
+            <div class="grid mt-1" *ngIf="unitPrice == null">
+                <div class="errMsg">Please enter the unit price to proceed.</div>
+            </div>
+            <label>Unit Stock</label>
+            <input type="number" id="unitsInStock" [(ngModel)]="stock" class="form-control mb-2" step="1" min="0"
+                (input)="validateStock($event)" ngModel>
+            <div class="grid mt-1" *ngIf="stock == null">
+                <div class="errMsg">Please enter the unit stock to proceed.</div>
+            </div>
+        </div>
+        <div class="popup-actions">
+            <button type="button" class="btn btn-sm" style="background-color: #088178; color: #fff; margin-right: 8px;"
+                (click)="save()">Save</button>
+            <button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+                (click)="close()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!--DELETE DIALOG-->
+<div class="popup-overlay" *ngIf="showDeleteDialog">
+    <div class="popup-content">
+        <label class="popup-title">Delete Product</label>
+        <div class="popup-field">
+            <span>Are you sure you want to delete the selected product? This action cannot be undone.</span>
+            <div class="popup-actions">
+                <button type="button" class="btn btn-sm"
+                    style="background-color: #088178; color: #fff; margin-right: 8px;"
+                    (click)="delete()">Confirm</button>
+                <button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+                    (click)="close()">Close</button>
+            </div>
+        </div>
+    </div>
