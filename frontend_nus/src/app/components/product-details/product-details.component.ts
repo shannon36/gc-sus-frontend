@@ -31,7 +31,7 @@ export class ProductDetailsComponent {
     this.productService.getProduct(theProductId).subscribe(
       data => {
         this.product = data;
-        if(this.product.unitsInStock == "0")
+        if(this.product.unitsInStock == 0)
         {
           this.outOfStock = true
         }

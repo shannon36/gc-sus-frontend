@@ -26,6 +26,8 @@ export class AuthComponent {
   userEmail: String;
   //
   tempAWSUserIdOnSignUp: String = "";
+  
+  seller!:boolean;
 
 
   constructor(private router: Router,
@@ -95,6 +97,7 @@ export class AuthComponent {
           // console.log(this.user.email);
           this.tempAWSUserIdOnSignUp = res["userSub"];
           // console.log(res["userSub"]);
+          alert("Sign up success. Check your email for OTP.");
 
         }).catch((e) => {
           this.resetBooleanAndMessage();
@@ -102,6 +105,7 @@ export class AuthComponent {
           console.log("end Signup, failed");
           this.isShowErrorMessage = true;
           this.errorMessage = e.message;
+          alert("SIGN UP FAIL");
         });
     }
     else {
@@ -139,8 +143,10 @@ export class AuthComponent {
             id: this.tempAWSUserIdOnSignUp,
             name: this.user.name,
             email: this.user.email,
+            roleind: this.seller ? "S" : "C"
           };
-          var apiUrl = 'http://13.229.63.255:9090/Customers/saveCustomer';
+          // var apiUrl = 'http://139.144.127.76:8080/Customers/saveCustomer';
+          var apiUrl = 'http://139.144.127.76:8080/Users/saveUser';
           const options = { headers };
 
           this.http.post(apiUrl, customerData, options).subscribe(
@@ -149,7 +155,7 @@ export class AuthComponent {
 
   
 
-        }).catch((e) => {
+        }).catch((e) => { 
           this.resetBooleanAndMessage();
           this.loading = false;
           console.log("end Signup, failed");
