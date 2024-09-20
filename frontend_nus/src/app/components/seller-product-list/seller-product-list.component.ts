@@ -4,6 +4,8 @@ import { Product } from 'src/app/common/product';
 import { ProductCategory } from 'src/app/common/product-category';
 import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
 import { ProductService } from 'src/app/services/product/product.service';
+import { Image } from 'src/app/common/image';
+import { ImageService } from 'src/app/services/image/image.service';
 
 @Component({
   selector: 'app-seller-product-list',
@@ -20,7 +22,7 @@ export class SellerProductListComponent {
   product!: Product;
 
   customerService: any;
-  userName: any;
+  userName?: string;
 
   showUpdateDialog!: boolean;
   showDeleteDialog!: boolean;
@@ -33,51 +35,24 @@ export class SellerProductListComponent {
   stock!: number;
   selectedID!: string;
   dateCreated = new Date();
+  selectedImageUrl: string | null = null;
+  showImagePopup = false;
+  images: Image[] = [];
 
   constructor(
     private cognitoService: CognitoService,
     private router: Router,
-    private productService: ProductService) { }
+    private productService: ProductService,
+    private imageService: ImageService) { }
 
   ngOnInit(): void {
     this.handleProductLists();
     this.productService.getProductCategories().subscribe(
       data => {
-        // console.log("Product Categories="+JSON.stringify(data));
         this.productCategories = data;
       }
     );
   }
-
-  // async handleProductLists() {
-  //   this.userEmail = '';
-  //   this.isAuth = await this.cognitoService.isAuthenticated();
-  //   if (this.isAuth && this.isAuth != null) {
-  //     this.user = {} as IUser;
-  //     this.user = await this.cognitoService.getUser();
-  //     console.log("this.user", this.user);
-  //     this.userEmail = this.user["attributes"]["email"];
-
-  //     if (this.userEmail != undefined) {
-  //       this.productService.getSellerProductList(this.user.username).subscribe(
-  //         data => {
-  //           console.log("hHELLO",data)
-  //           this.products = data;
-  //           // this.customerId = data.id;
-  //           // if(this.customerId != undefined) {
-  //           //   this.orderService.getOrderListByCusId(this.customerId).subscribe(
-  //           //     data => {
-  //           //       this.orders=data;
-  //           //     }
-  //           //   )
-  //           // }
-  //         }
-  //       );
-  //     }
-  //   } else {
-  //     this.router.navigate(['/auth'])
-  //   }
-  // }
 
   async handleProductLists() {
     this.userEmail = '';
@@ -85,13 +60,13 @@ export class SellerProductListComponent {
     if (this.isAuth && this.isAuth != null) {
       this.user = {} as IUser;
       this.user = await this.cognitoService.getUser();
-      console.log("this.user", this.user);
+      // console.log("this.user", this.user);
       this.userEmail = this.user["attributes"]["email"];
 
       if (this.userEmail != undefined) {
         this.productService.getSellerProductList(this.user.username).subscribe(
           data => {
-            console.log("Product List Updated", data);
+            // console.log("Product List Updated", data);
             this.products = data;
             this.products.forEach(d => {
               let id = d.pdtid?.slice(-4);
@@ -100,7 +75,7 @@ export class SellerProductListComponent {
             this.products.map(p => {
               this.productService.getProductCategoryById(p.catid!).subscribe(
                 (res: Product) => {
-                  console.log("RES", res);
+                  // console.log("RES", res);
                   p.categoryname = res?.categoryname;
                 }
               );
@@ -129,7 +104,7 @@ export class SellerProductListComponent {
     if (this.selectedID) {
       this.productService.deleteProduct(this.selectedID).subscribe({
         next: (res) => {
-          console.log("Delete response:", res);
+          // console.log("Delete response:", res);
           this.showDeleteDialog = false;
           alert("Selected product is deleted!");
           this.handleProductLists();
@@ -156,6 +131,7 @@ export class SellerProductListComponent {
     this.selectedID = p.pdtid ?? "";
     this.dateCreated = p.dateCreated!;
     this.userId = p.sellerid ?? "";
+    this.selectedImageUrl = p.imageUrl ?? null;
   }
 
   close(): void {
@@ -165,6 +141,9 @@ export class SellerProductListComponent {
       this.showDeleteDialog = false;
     }
 
+  }
+  closeImg(): void {
+    this.showImagePopup = false;
   }
 
   save(): void {
@@ -176,8 +155,7 @@ export class SellerProductListComponent {
         name: this.productName,
         description: this.description,
         unitPrice: this.unitPrice,
-        // imageUrl: this.selectedImage ?? "",
-        imageUrl: "",
+        imageUrl: this.selectedImageUrl ?? "",
         unitsInStock: this.stock,
         dateCreated: this.dateCreated,
         lastUpdated: new Date()
@@ -204,7 +182,7 @@ export class SellerProductListComponent {
   }
 
   validateUpdateForm(): boolean {
-    if ((this.productName == "" || this.productName == null) || (this.description == "" || this.description == null) || (this.unitPrice == null) || (this.stock == null)) {
+    if ((this.productName == "" || this.productName == null) || (this.description == "" || this.description == null) || (this.unitPrice == null) || (this.stock == null) || (this.selectedImageUrl == '' || this.selectedImageUrl == null)) {
       return false;
     } else {
       return true;
@@ -236,5 +214,31 @@ export class SellerProductListComponent {
     } else {
       input.value = '';
     }
+  }
+
+  onUpload(): void {
+    this.loadImages();
+    this.showImagePopup = true;
+  }
+
+  loadImages(): void {
+    this.imageService.getAllImages().subscribe(
+      (data) => {
+        this.images = data;
+        // console.log("this.images", this.images);
+      },
+      (error) => {
+        console.error('Error fetching images:', error);
+      }
+    );
+  }
+
+  selectImage(imageId: string): void {
+    const selectedImage = this.images.find(image => image.imageid === imageId);
+    if (selectedImage) {
+      this.selectedImageUrl = selectedImage.imageUrl;
+      // console.log('Selected Image URL:', this.selectedImageUrl);
+    }
+    this.showImagePopup = false;
   }
 }

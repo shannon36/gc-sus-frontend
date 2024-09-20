@@ -66,3 +66,25 @@
     color: #b30909;
     font-size: 12px;
 }
+
+.image-gallery {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.image-item {
+    min-width: 150px;
+    margin-right: 10px;
+    margin: 10px;
+    text-align: center;
+}
+
+.image-item img {
+    border-radius: 4px;
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+}
+

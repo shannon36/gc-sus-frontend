@@ -34,10 +34,10 @@ export class AppComponent {
       this.user = {} as IUser;
       this.user = await this.cognitoService.getUser();
       this.userEmail = this.user["attributes"]["email"];
-      console.log(this.userEmail)
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data)
+      // console.log(this.userEmail)
+      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
         this.userName = data.name;
-        this.isSeller = data.roleind == "S" ? true: false;
+        this.isSeller = data.roleind == "S" ? true : false;
         this.routeName = data.roleind == "S" ? "/addproduct" : "/products";
         this.isDisabled = data.roleind == "S" ? "disabled" : "";
       })

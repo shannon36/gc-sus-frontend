@@ -66,6 +66,13 @@
             <div class="grid mt-1" *ngIf="description == '' || description == null">
                 <div class="errMsg">Please enter the product description to proceed.</div>
             </div>
+            <label>Product Image</label>
+            <img *ngIf="selectedImageUrl" [src]="selectedImageUrl"
+                style="margin-left: 10px; width: 100px; height: 100px; cursor: pointer;" (click)="onUpload()" />
+            <div class="grid mt-1" *ngIf="selectedImageUrl == '' || selectedImageUrl == null">
+                <div class="errMsg">Please upload an image of the product to proceed.</div>
+            </div>
+
             <label>Unit Price ($)</label>
             <input type="number" id="unitPrice" [(ngModel)]="unitPrice" class="form-control mb-2" min="0" step=".01"
                 (input)="validatePrice($event)" ngModel>
@@ -103,3 +110,21 @@
             </div>
         </div>
     </div>
+</div>
+
+<!--IMAGE DIALOG-->
+<div class="popup-overlay" *ngIf="showImagePopup">
+    <div class="popup-content">
+        <label class="popup-title">Product Image</label>
+        <div class="popup-field">
+            <div class="image-gallery">
+                <div *ngFor="let image of images" class="image-item">
+                    <!-- <img [src]="image.imageUrl" (click)="selectImage(image.imageId)" /> -->
+                    <img [src]="image.imageUrl" [alt]="image.description" (click)="selectImage(image.imageid)" />
+                </div>
+            </div>
+            <div class="popup-actions">
+                <button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+                    (click)="closeImg()">Close</button>
+            </div>
+        </div>
