@@ -41,7 +41,14 @@
 				<br>
 				<div class="form-group">
 					<label for="image">Product Image</label><br>
-					<input type="file" id="image" (change)="onImageChange($event)" class="form-control">
+					<button type="button" class="btn btn-sm" style="background-color: #B6D0E2; color: #fff;"
+						(click)="onUpload()">Upload</button>
+					<img *ngIf="selectedImageUrl" [src]="selectedImageUrl"
+						style="margin-left: 10px; width: 100px; height:100px" />
+					<div class="grid mt-1"
+						*ngIf="((selectedImageUrl == null || selectedImageUrl == '') && isSubmitted)">
+						<div class="errMsg">Please upload an image of the product to proceed.</div>
+					</div>
 				</div>
 				<br>
 				<div class="form-group">
@@ -68,3 +75,21 @@
 		</div>
 	</div>
 </div>
+
+<!--IMAGE DIALOG-->
+<div class="popup-overlay" *ngIf="showImagePopup">
+	<div class="popup-content">
+		<label class="popup-title">Product Image</label>
+		<div class="popup-field">
+			<div class="image-gallery">
+				<div *ngFor="let image of images" class="image-item">
+					<!-- <img [src]="image.imageUrl" (click)="selectImage(image.imageId)" /> -->
+					<img [src]="image.imageUrl" [alt]="image.description" (click)="selectImage(image.imageid)" />
+				</div>
+			</div>
+			<div class="popup-actions">
+				<button type="button" class="btn btn-sm" style="background-color: #b30909; color: #fff;"
+					(click)="close()">Close</button>
+			</div>
+		</div>
+	</div>

@@ -17,7 +17,10 @@
                                         Category List
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-dark bg-light">
-                                        <li *ngFor="let tempProductCategory of productCategories"><a class="dropdown-item" routerLink="/products/catid/{{tempProductCategory.catid}}/{{tempProductCategory.categoryname}}">{{tempProductCategory.categoryname}}</a></li>
+                                        <li *ngFor="let tempProductCategory of productCategories"><a
+                                                class="dropdown-item"
+                                                routerLink="/products/catid/{{tempProductCategory.catid}}/{{tempProductCategory.categoryname}}">{{tempProductCategory.categoryname}}</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -33,7 +36,7 @@
                 <div class="product-box">
                     <div class="pro">
                         <a routerLink="/products/{{tempProduct.pdtid}}">
-                            <!-- <img src="{{ tempProduct.imageUrl }}" alt="" class="img-responsive" height="180"> -->
+                            <img src="{{ tempProduct.imageUrl }}" alt="" class="img-responsive" height="180">
 
                             <div class="des">
                                 <span>{{ currentCategoryName }}</span>
@@ -44,13 +47,16 @@
                         </a>
                         <!-- <div class="price">S$4</div> -->
                         <!-- <button (click)="addToCart(tempProduct)" class="btn btn-primary btn-sm">Add to Cart</button> -->
-                        <a (click)="addToCart(tempProduct)" *ngIf="tempProduct.unitsInStock != 0" id="cart[{{tempProduct.pdtid}}]"><i class="fa fa-shopping-cart cart"></i></a>
+                        <a (click)="addToCart(tempProduct)" *ngIf="tempProduct.unitsInStock != 0"
+                            id="cart[{{tempProduct.pdtid}}]"><i class="fa fa-shopping-cart cart"></i></a>
                     </div>
                 </div>
             </div>
             <div style="float:right; padding: 10px;">
-                                    <p><small *ngIf="!isLoggedIn" class="text-danger">Only sellers can add products. Please <a routerLink="/auth" class="text-decoration-none">Login</a> to proceed</small></p>
-                                    <button routerLink="/addproduct" class="btn checkout-button" style="background-color: #088178; color: #fff;" [disabled]="!isLoggedIn">Add Product</button>
+                <p><small *ngIf="!isLoggedIn" class="text-danger">Only sellers can add products. Please <a
+                            routerLink="/auth" class="text-decoration-none">Login</a> to proceed</small></p>
+                <button *ngIf="userRole == 'S'" routerLink="/addproduct" class="btn checkout-button"
+                    style="background-color: #088178; color: #fff;" [disabled]="!isLoggedIn">Add Product</button>
             </div>
         </div>
     </div>

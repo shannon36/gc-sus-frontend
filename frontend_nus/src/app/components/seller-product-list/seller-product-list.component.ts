@@ -17,6 +17,7 @@ export class SellerProductListComponent {
   userId!: string;
   products: Product[] = [];
   selectedProduct!: Product;
+  product!: Product;
 
   customerService: any;
   userName: any;
@@ -31,6 +32,7 @@ export class SellerProductListComponent {
   unitPrice!: number;
   stock!: number;
   selectedID!: string;
+  dateCreated = new Date();
 
   constructor(
     private cognitoService: CognitoService,
@@ -91,6 +93,10 @@ export class SellerProductListComponent {
           data => {
             console.log("Product List Updated", data);
             this.products = data;
+            this.products.forEach(d => {
+              let id = d.pdtid?.slice(-4);
+              d.id = 'P' + id?.toUpperCase();
+            })
             this.products.map(p => {
               this.productService.getProductCategoryById(p.catid!).subscribe(
                 (res: Product) => {
@@ -125,7 +131,7 @@ export class SellerProductListComponent {
         next: (res) => {
           console.log("Delete response:", res);
           this.showDeleteDialog = false;
-          alert("Selcted product is deleted!");
+          alert("Selected product is deleted!");
           this.handleProductLists();
         },
         error: err => {
@@ -147,6 +153,9 @@ export class SellerProductListComponent {
     this.description = p.description ?? "";
     this.unitPrice = p.unitPrice ?? 0;
     this.stock = p.unitsInStock ?? 0;
+    this.selectedID = p.pdtid ?? "";
+    this.dateCreated = p.dateCreated!;
+    this.userId = p.sellerid ?? "";
   }
 
   close(): void {
@@ -159,12 +168,39 @@ export class SellerProductListComponent {
   }
 
   save(): void {
-    if(this.validateUpdateForm()){
+    if (this.validateUpdateForm() && this.selectedID) {
+      this.product = {
+        pdtid: this.selectedID,
+        sellerid: this.userId,
+        catid: this.selectedCatid,
+        name: this.productName,
+        description: this.description,
+        unitPrice: this.unitPrice,
+        // imageUrl: this.selectedImage ?? "",
+        imageUrl: "",
+        unitsInStock: this.stock,
+        dateCreated: this.dateCreated,
+        lastUpdated: new Date()
+      }
+
+      console.log("PRODUCT UPDATE", this.product);
+      this.productService.updateProduct(this.product, this.selectedID).subscribe({
+        next: (res) => {
+          console.log("Update response", res);
+          this.showUpdateDialog = false;
+          alert("Selected product is updated successfully!");
+          this.handleProductLists();
+        },
+        error: err => {
+          console.log("Error updating product", err);
+        }
+      });
+
       console.log("SAVE");
-    }else{
+    } else {
       alert("ERROR");
     }
-   
+
   }
 
   validateUpdateForm(): boolean {
