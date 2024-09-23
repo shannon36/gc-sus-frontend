@@ -2,6 +2,7 @@ import { CartService } from './../../services/cart/cart.service';
 import { CartItem } from './../../common/cart-item';
 import { Component, OnInit } from '@angular/core';
 import { CognitoService } from 'src/app/services/auth/cognito.service';
+import { CustomerService } from '../../services/customer/customer.service';
 
 @Component({
   selector: 'app-cart-details',
@@ -15,8 +16,10 @@ export class CartDetailsComponent implements OnInit {
   totalQuantity: number = 0;
   isLoggedIn: boolean = false;
   isAuth: any;
+  isSeller !: boolean;
 
-  constructor(private cartService: CartService, private cognitoService: CognitoService) {
+
+  constructor(private cartService: CartService, private cognitoService: CognitoService, private customerService: CustomerService) {
     this.checkIsLoggedIn();
   }
 
@@ -28,6 +31,12 @@ export class CartDetailsComponent implements OnInit {
 
     this.isAuth = await this.cognitoService.isAuthenticated();
     if (this.isAuth && this.isAuth != null) {
+      let userEmail = "";
+      let user = await this.cognitoService.getUser();
+      userEmail = user["attributes"]["email"];
+      this.customerService.getCustomerInformation(userEmail).subscribe(data => {
+        this.isSeller = data.roleind == "S" ? true : false;
+      });
       this.isLoggedIn = true;
     } else {
       this.isLoggedIn = false;

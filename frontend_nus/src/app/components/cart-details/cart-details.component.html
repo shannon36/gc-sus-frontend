@@ -59,9 +59,12 @@
                             <p>Total Quantity: {{ totalQuantity }}</p>
                             <p>Shipping: Free</p>
                             <p>Total Price: {{ totalPrice | currency:'SGD' : 'symbol-narrow' }}</p>
-                            <button routerLink="/checkout" class="btn checkout-button"
-                                style="background-color: #088178; color: #fff;" [disabled]="!isLoggedIn">Checkout</button>
-                            <br><small *ngIf="!isLoggedIn" class="text-danger">Please <a routerLink="/auth" class="text-decoration-none">Login</a> to proceed this</small>
+                            <ng-template [ngIf]="isSeller"> <button routerLink="/checkout" class="btn checkout-button"
+                                    style="background-color: #088178; color: #fff;"
+                                    [disabled]="!isLoggedIn">Checkout</button>
+                            </ng-template>
+                            <br><small *ngIf="!isLoggedIn" class="text-danger">Please <a routerLink="/auth"
+                                    class="text-decoration-none">Login</a> to proceed this</small>
                         </td>
                     </tr>
                 </table>
