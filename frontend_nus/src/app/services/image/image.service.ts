@@ -7,7 +7,7 @@ import { Image } from 'src/app/common/image';
     providedIn: 'root'
 })
 export class ImageService {
-    private baseUrl = 'http://139.144.127.76:8080';
+    private baseUrl = 'http://143.42.79.86/backend';
 
     constructor(private http: HttpClient) { }
 
