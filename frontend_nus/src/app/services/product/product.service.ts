@@ -48,7 +48,7 @@ export class ProductService {
     return this.httpClient.get<Product[]>(url);
   }
 
-  getProductCategoryById(pdtCatId : string): Observable<Product> {
+  getProductCategoryById(pdtCatId: string): Observable<Product> {
     const url = `${this.baseUrl}/ProductCategoryController/getProductCategoryById?pdtCatId=${pdtCatId}`;
 
     return this.httpClient.get<Product>(url);
@@ -100,6 +100,21 @@ export class ProductService {
 
     // Use POST instead of DELETE if the backend expects POST
     return this.httpClient.post<string>(productUrl, {}, options);
+  }
+
+
+  updateProduct(productData: Product, pdtId: string): Observable<any> {
+    const productUrl =  `${this.baseUrl}/Products/updateProduct`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    const options = {
+      headers,
+      responseType: 'text' as 'json'  // Set the response type to 'text'
+    };
+
+    return this.httpClient.put(`${productUrl}?pdtId=${pdtId}`, productData, options);
   }
 }
 

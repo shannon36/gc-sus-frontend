@@ -11,14 +11,16 @@
 //     lastUpdated: Date | undefined;
 // }
 
+
 export class Product {
     pdtid: string | undefined;
+    id?: string;
     sellerid: string | undefined;
     catid: string | undefined;
     name: string | undefined;
     description: string | undefined;
     unitPrice: number | undefined;
-    imageUrl: File | string| undefined;
+    imageUrl: string | undefined;
     unitsInStock: number | undefined;
     dateCreated: Date | undefined;
     lastUpdated: Date | undefined;

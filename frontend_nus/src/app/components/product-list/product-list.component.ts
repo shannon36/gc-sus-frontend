@@ -60,8 +60,7 @@ export class ProductListComponent implements OnInit {
       this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
         this.userName = data.name;
         this.userRole = data.roleind;
-        console.log(this.userName)
-        console.log(this.userRole)
+     
       })
     } else {
       this.isLoggedIn = false;

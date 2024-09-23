@@ -30,7 +30,7 @@ export class CognitoService {
         userPoolWebClientId: '6iqdqs7cv61sa28agn08pj98n',
       },
     });
-    console.log(Amplify);
+    // console.log(Amplify);
     console.log("AWS Cognito Configure done.");
     this.authenticationSubject = new BehaviorSubject<boolean>(false);
   }

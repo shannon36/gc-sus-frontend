@@ -5,6 +5,8 @@ import { ProductCategory } from 'src/app/common/product-category';
 import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
 import { CustomerService } from 'src/app/services/customer/customer.service';
 import { Product } from 'src/app/common/product';
+import { Image } from 'src/app/common/image';
+import { ImageService } from 'src/app/services/image/image.service';
 
 @Component({
   selector: 'app-product-add',
@@ -13,28 +15,25 @@ import { Product } from 'src/app/common/product';
 })
 export class ProductAddComponent implements OnInit {
   user: any;
-  user1: any;
 
   isLoggedIn: boolean = true;
   isAuth: any;
   userEmail: string = "";
-  userId: any;
-
-  selectedImage?: File | string;
-
+  userId?: string;
+  images: Image[] = [];
+  selectedImageUrl: string | null = null;
+  showImagePopup = false;
 
   productForm = this.fb.group({
-    sellerid: [''],
     catid: ['', Validators.required],
     name: ['', Validators.required],
     description: ['', Validators.required],
     unitPrice: [0, Validators.required],
-    // imageUrl: ['', Validators.required], //temp commented off
-    imageUrl: [''],
     unitsInStock: [0, Validators.required],
     dateCreated: [new Date(), Validators.required],
     lastUpdated: [new Date(), Validators.required]
   });
+
   product: Product = new Product();
   isSubmitted = false;
   productCategories: ProductCategory[] = [];
@@ -42,20 +41,17 @@ export class ProductAddComponent implements OnInit {
   constructor(private fb: FormBuilder,
     private productService: ProductService,
     private cognitoService: CognitoService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private imageService: ImageService
   ) {
   }
 
   ngOnInit(): void {
     this.getUserInformation();
     this.listProductCategories();
+    this.selectedImageUrl = null;
   }
 
-  onImageChange(event: any) {
-    if (event.target.files.length > 0) {
-      this.selectedImage = event.target.files[0];
-    }
-  }
   async getUserInformation() {
     this.userEmail = '';
     this.userId = '';
@@ -67,9 +63,8 @@ export class ProductAddComponent implements OnInit {
       this.userEmail = this.user["attributes"]["email"];
       console.log(this.userEmail)
       this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
-        console.log(data.id)
         this.userId = data.id;
-      })
+      });
 
     } else {
       this.isLoggedIn = false;
@@ -80,7 +75,6 @@ export class ProductAddComponent implements OnInit {
   listProductCategories() {
     this.productService.getProductCategories().subscribe(
       data => {
-        // console.log("Product Categories="+JSON.stringify(data));
         this.productCategories = data;
         this.productForm.get('catid')!.setValue(this.productCategories[0].catid);
       }
@@ -89,8 +83,7 @@ export class ProductAddComponent implements OnInit {
 
   onSubmit(): void {
     this.isSubmitted = true;
-    console.log("this.productForm", this.productForm);
-    if (this.productForm.valid) {
+    if (this.productForm.valid && this.selectedImageUrl) {
       this.product = {
         pdtid: "",
         sellerid: this.userId,
@@ -98,8 +91,7 @@ export class ProductAddComponent implements OnInit {
         name: this.productForm.value.name ? this.productForm.value.name : "",
         description: this.productForm.value.description ? this.productForm.value.description : "",
         unitPrice: this.productForm.value.unitPrice ? this.productForm.value.unitPrice : 0,
-        // imageUrl: this.selectedImage,
-        imageUrl: "",
+        imageUrl: this.selectedImageUrl ?? "",
         unitsInStock: this.productForm.value.unitsInStock ? this.productForm.value.unitsInStock : 0,
         dateCreated: new Date(),
         lastUpdated: new Date()
@@ -109,8 +101,9 @@ export class ProductAddComponent implements OnInit {
 
       this.productService.saveNewProduct(this.product).subscribe({
         next: response => {
-          console.log(response);
           this.productForm.reset();
+          this.selectedImageUrl = null;
+          this.isSubmitted = false;
           alert("Product successfully added!");
 
         },
@@ -126,7 +119,6 @@ export class ProductAddComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     let value = input.value;
 
-    // Regular expression to match valid numbers with leading zero check
     const validNumber = /^(0(\.\d{1,2})?|[1-9]\d*(\.\d{1,2})?)$/;
 
     if (!validNumber.test(value)) {
@@ -138,7 +130,6 @@ export class ProductAddComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const newValue = input.value;
 
-    // Regular expression to match valid numbers with leading zero check
     const validNumber = /^(0|[1-9]\d*)$/;
     const cleanedValue = newValue.replace(/[^0-9]/g, '');
 
@@ -147,6 +138,37 @@ export class ProductAddComponent implements OnInit {
     } else {
       input.value = '';
     }
+  }
+
+  onUpload(): void {
+    this.loadImages();
+    this.showImagePopup = true;
+  }
+
+  close(): void {
+    this.showImagePopup = false;
+  }
+
+  selectImage(imageId: string): void {
+    console.log('Clicked Image ID:', imageId);
+    const selectedImage = this.images.find(image => image.imageid === imageId);
+    if (selectedImage) {
+      this.selectedImageUrl = selectedImage.imageUrl;
+      console.log('Selected Image URL:', this.selectedImageUrl);
+    }
+    this.showImagePopup = false;
+  }
+
+  loadImages(): void {
+    this.imageService.getAllImages().subscribe(
+      (data) => {
+        this.images = data;
+        console.log("this.images", this.images);
+      },
+      (error) => {
+        console.error('Error fetching images:', error);
+      }
+    );
   }
 
 
