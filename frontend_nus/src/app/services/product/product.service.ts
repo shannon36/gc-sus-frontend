@@ -11,7 +11,7 @@ export class ProductService {
 
   // private categoryUrl = 'http://localhost:8080/api/product-category';
   // private baseUrl = 'http://localhost:9090';
-  private baseUrl = 'http://139.144.127.76:8080';
+  private baseUrl = 'http://143.42.79.86/backend';
   // private baseUrl = 'https://smartcart.nus.yaphanyee.com';
 
   constructor(private httpClient: HttpClient) { }
