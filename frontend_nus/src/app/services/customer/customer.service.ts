@@ -9,7 +9,7 @@ import { Customer } from 'src/app/common/customer';
 export class CustomerService {
   // private baseUrl = 'https://smartcart.nus.yaphanyee.com';
   // private baseUrl = 'http://localhost:9090';
-  private baseUrl = 'http://139.144.127.76:8080';
+  private baseUrl = 'http://143.42.79.86/backend';
 
   constructor(private httpClient: HttpClient) { }
 

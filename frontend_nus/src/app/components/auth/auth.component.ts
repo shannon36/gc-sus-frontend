@@ -145,8 +145,8 @@ export class AuthComponent {
             email: this.user.email,
             roleind: this.seller ? "S" : "C"
           };
-          // var apiUrl = 'http://139.144.127.76:8080/Customers/saveCustomer';
-          var apiUrl = 'http://139.144.127.76:8080/Users/saveUser';
+         
+          var apiUrl = 'http://143.42.79.86/backend/Users/saveUser';
           const options = { headers };
 
           this.http.post(apiUrl, customerData, options).subscribe(
