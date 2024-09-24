@@ -27,6 +27,10 @@ import { OrderHistoryComponent } from './components/order-history/order-history.
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { SellerProductListComponent } from './components/seller-product-list/seller-product-list.component';
 
+
+import { OAuthModule } from 'angular-oauth2-oidc'; // Import OAuthModule
+
+
 // order of routes is important coz first match wins(start from more specific to generic)
 const routes: Routes = [
   {path: 'index', component: HomeComponent},
@@ -62,7 +66,8 @@ const routes: Routes = [
     ErrorComponent,
     OrderDetailsComponent,
     ProductAddComponent,
-    SellerProductListComponent
+    SellerProductListComponent,
+    AppComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -72,7 +77,15 @@ const routes: Routes = [
     ReactiveFormsModule, // Add ReactiveFormsModule
     FormsModule,
     BrowserAnimationsModule,  // Required for Angular Material
-    MatDialogModule
+    MatDialogModule,
+   OAuthModule.forRoot(
+     //{
+    //   resourceServer: {
+    //     allowedUrls: ['http://www.angular.at/api'],
+    //     sendAccessToken: true
+    //   }
+    // }
+    ), // Configure OAuthModule globally
   ],
   providers: [ProductService],
   bootstrap: [AppComponent]
