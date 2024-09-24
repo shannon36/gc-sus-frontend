@@ -14,7 +14,7 @@
       <li><a routerLink="{{routeName}}" routerLinkActive="active">{{isSeller?'Add Product':'Shop'}}</a></li>
 
       <li><a routerLinkActive="active">About</a></li>
-      <li>
+      <li *ngIf="!isSeller">
         <app-cart-status></app-cart-status>
         <!-- <a routerLink="/cart"><i class="fa fa-shopping-cart"></i><span class='badge badge-warning' id='lblCartCount' aria-hidden="true">{{ totalQuantity }}</span></a> -->
       </li>

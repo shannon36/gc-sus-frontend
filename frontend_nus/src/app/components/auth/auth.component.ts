@@ -207,6 +207,7 @@ export class AuthComponent {
     console.log("start sign out");
 
     this.resetBooleanAndMessage();
+    sessionStorage.clear();
 
     this.loading = true;
     this.cognitoService.signOut()
