@@ -6,16 +6,19 @@
             </div>
 
             <div class="single-pro-details">
-                <div class="plabel">Snacks & Sweets</div>
+                <div class="plabel">{{ product.categoryname }}</div>
                 <h4>{{ product.name }}</h4>
                 <h2>{{ product.unitPrice | currency:'SGD' : 'symbol-narrow' }}</h2>
-                <!-- <input type="number" value="1" min="0" max="{{product.unitsInStock}}"> -->
-                <button type="button" (click)="addToCart()" class="btn btn-sm" [disabled]="outOfStock">Add to
-                    Cart</button>
+                <button type="button" (click)="addToCart()" class="btn btn-sm" [disabled]="outOfStock">Add to Cart</button>
                 <br>
-                <div></div><span class="text-danger" *ngIf="outOfStock; else inStock"><i>Out of Stock</i></span>
-                <ng-template #inStock><span id="showStockQty"><i>Unit in stocks:
-                            {{product.unitsInStock}}</i></span></ng-template>
+                <div></div>
+                <span class="text-danger" *ngIf="outOfStock; else inStock"><i>Out of Stock</i></span>
+                <ng-template #inStock>
+                    <span id="showStockQty" [ngStyle]="{'color': isLowStock ? 'red' : 'black'}">
+                        <i *ngIf="product.unitsInStock! > 0">Units in stock: {{product.unitsInStock}}</i>
+                      </span>
+                      
+                </ng-template>
                 <div class="prodLabel">Product Details</div>
                 <span>{{ product.description }}</span>
             </div>

@@ -7,9 +7,12 @@
           <div class="cart-body">
             <div class="row">
               <div class="col text-center">
+                <p>{{userName}}</p>
                 <p>{{userEmail}}</p>
-                <i class="fa fa-angle-right" aria-hidden="true"></i><a href="/order-history"
-                  style="font-size: 12px; text-decoration: none;"> View Order History</a>
+                <ng-template [ngIf]="userRole == 'C'">
+                  <i class="fa fa-angle-right" aria-hidden="true"></i><a href="/order-history"
+                    style="font-size: 12px; text-decoration: none;"> View Order History</a>
+                </ng-template>
                 <p></p>
               </div>
             </div>
