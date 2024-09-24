@@ -13,16 +13,16 @@
 
 
 export class Product {
-    pdtid: string | undefined;
+    pdtid?: string;
     id?: string;
-    sellerid: string | undefined;
-    catid: string | undefined;
-    name: string | undefined;
-    description: string | undefined;
-    unitPrice: number | undefined;
-    imageUrl: string | undefined;
-    unitsInStock: number | undefined;
-    dateCreated: Date | undefined;
-    lastUpdated: Date | undefined;
+    sellerid?: string;
+    catid?: string;
+    name?: string ;
+    description?: string;
+    unitPrice?: number;
+    imageUrl?: string;
+    unitsInStock?: number;
+    dateCreated?: Date;
+    lastUpdated?: Date;
     categoryname?: string;
 }

@@ -56,7 +56,6 @@ export class ProductListComponent implements OnInit {
       this.user = {} as IUser;
       this.user = await this.cognitoService.getUser();
       this.userEmail = this.user["attributes"]["email"];
-      console.log(this.userEmail)
       this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
         this.userName = data.name;
         this.userRole = data.roleind;
