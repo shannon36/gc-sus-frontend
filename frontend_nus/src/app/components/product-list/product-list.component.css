@@ -1,0 +1,9 @@
+.add-to-cart {
+    cursor: pointer; /* Change cursor to pointer */
+    transition: color 0.3s ease; /* Smooth transition for color change */
+    color: #000; /* Initial color (change as needed) */
+}
+
+.add-to-cart:hover {
+    color: #088178; /* Color on hover */
+}

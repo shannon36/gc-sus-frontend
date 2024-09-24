@@ -48,7 +48,9 @@
                         <!-- <div class="price">S$4</div> -->
                         <!-- <button (click)="addToCart(tempProduct)" class="btn btn-primary btn-sm">Add to Cart</button> -->
                         <a (click)="addToCart(tempProduct)" *ngIf="tempProduct.unitsInStock != 0"
-                            id="cart[{{tempProduct.pdtid}}]"><i class="fa fa-shopping-cart cart"></i></a>
+                            id="cart[{{tempProduct.pdtid}}]" class="add-to-cart"><i
+                                class="fa fa-shopping-cart cart"></i></a>
+
                     </div>
                 </div>
             </div>

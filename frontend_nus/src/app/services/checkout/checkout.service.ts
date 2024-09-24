@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class CheckoutService {
-  private baseUrl = 'https://smartcart.nus.yaphanyee.com';
+  private baseUrl = 'http://143.42.79.86/backend';
   // private baseUrl = 'https://smartcart.nus.yaphanyee.com';
   // private baseUrl = "http://13.229.63.255:9090";
   // private baseUrl = "http://13.229.63.255:9090";

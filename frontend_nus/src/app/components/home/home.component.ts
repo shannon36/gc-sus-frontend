@@ -14,6 +14,7 @@ export class HomeComponent {
   isAuth: any;
   userEmail: string;
   userName!: string;
+  userRole: string | undefined;
 
   constructor(private router: Router, private cognitoService: CognitoService, private customerService: CustomerService)  {
     this.isLoggedIn = false;
@@ -24,6 +25,7 @@ export class HomeComponent {
 
   async checkIsLoggedIn() {
     this.userEmail = '';
+    this.userRole = '';
 
     this.isAuth = await this.cognitoService.isAuthenticated();
     if (this.isAuth && this.isAuth != null) {
@@ -36,7 +38,7 @@ export class HomeComponent {
           next: data => {
             console.log("Customer Info", data);
             this.userName = data.name ?? "";
-
+            this.userRole = data.roleind;
           }, error: err => {
 
 

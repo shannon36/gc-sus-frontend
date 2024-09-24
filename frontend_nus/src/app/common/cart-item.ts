@@ -6,6 +6,7 @@ export class CartItem {
     unitPrice: number;
     quantity: number;
     stockQty: number | undefined;
+    imageUrl?: string;
 
     constructor(product: Product) {
         this.pdtid = product.pdtid;

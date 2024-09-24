@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CustomerService } from 'src/app/services/customer/customer.service';
 
 @Component({
   selector: 'app-auth',
@@ -23,15 +24,16 @@ export class AuthComponent {
 
   isLoggedIn: boolean;
   isAuth: any;
-  userEmail: String;
-  //
+  userEmail: string;
+  userName!: string;
   tempAWSUserIdOnSignUp: String = "";
-  
-  seller!:boolean;
+
+  seller!: boolean;
+  userRole!: string;
 
 
   constructor(private router: Router,
-    private cognitoService: CognitoService, private http: HttpClient,) {
+    private cognitoService: CognitoService, private http: HttpClient, private customerService: CustomerService) {
     this.loading = false;
     this.isShowOTP = false;
     this.showSignUp = false;
@@ -58,6 +60,20 @@ export class AuthComponent {
       this.user1 = {} as IUser;
       this.user1 = await this.cognitoService.getUser();
       this.userEmail = this.user1["attributes"]["email"];
+      this.customerService.getCustomerInformation(this.userEmail).subscribe(
+        {
+          next: data => {
+            console.log("Customer Info", data);
+            this.userName = data.name ?? "";
+            this.userRole = data.roleind ?? "";
+          }, error: err => {
+
+
+          }, complete: () => {
+
+          }
+        }
+      );
     } else {
       this.isLoggedIn = false;
     }
@@ -145,17 +161,17 @@ export class AuthComponent {
             email: this.user.email,
             roleind: this.seller ? "S" : "C"
           };
-         
+
           var apiUrl = 'http://143.42.79.86/backend/Users/saveUser';
           const options = { headers };
 
           this.http.post(apiUrl, customerData, options).subscribe(
-      
+
           );
 
-  
 
-        }).catch((e) => { 
+
+        }).catch((e) => {
           this.resetBooleanAndMessage();
           this.loading = false;
           console.log("end Signup, failed");
@@ -207,6 +223,7 @@ export class AuthComponent {
     console.log("start sign out");
 
     this.resetBooleanAndMessage();
+    sessionStorage.clear();
 
     this.loading = true;
     this.cognitoService.signOut()

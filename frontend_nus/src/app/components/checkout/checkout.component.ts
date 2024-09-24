@@ -11,6 +11,7 @@ import { response } from 'express';
 import { Customer } from 'src/app/common/customer';
 import { CustomerService } from 'src/app/services/customer/customer.service';
 import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
+import { CartItem } from 'src/app/common/cart-item';
 
 @Component({
   selector: 'app-checkout',
@@ -26,60 +27,75 @@ export class CheckoutComponent implements OnInit {
   user: any;
   userEmail: string;
   paymentRefId: string = "PT001";
-  // orderItems: OrderItem[] = [];
-  // orderItems: { [index: string]: any } = {};
+  products: CartItem[] = [];
 
   constructor(private formBuilder: FormBuilder,
-              private theCartService: CartService,
-              private customerService: CustomerService,
-              private checkoutService: CheckoutService, 
-              private cognitoService: CognitoService,
-              private router: Router) {
-                this.userEmail = "";
-              }
-              
+    private theCartService: CartService,
+    private customerService: CustomerService,
+    private checkoutService: CheckoutService,
+    private cognitoService: CognitoService,
+    private router: Router) {
+    this.userEmail = "";
+  }
+
   ngOnInit(): void {
+    this.loadCart(); // Load cart from session storage
     this.getCustomerInformation();
     this.reviewCartDetails();
   }
 
+  loadCart(): void {
+    const savedCart = sessionStorage.getItem('products');
+    if (savedCart) {
+      this.products = JSON.parse(savedCart);
+      this.theCartService.cartItems = this.products; // Sync with the cart service
+    } else {
+      this.products = []; // Ensure products is initialized to an empty array if nothing is saved
+    }
+  }
+
   async getCustomerInformation() {
+    this.userEmail = '';
+
     this.isAuth = await this.cognitoService.isAuthenticated();
     if (this.isAuth && this.isAuth != null) {
       this.user = {} as IUser;
       this.user = await this.cognitoService.getUser();
       this.userEmail = this.user["attributes"]["email"];
-
       this.customerService.getCustomerInformation(this.userEmail).subscribe(
-        data => {console.log(this.customer)
-          this.customer = data
+        {
+          next: data => {
+            console.log("Customer Info", data);
+            this.customer = data;
+
+          }, error: err => {
+
+
+          }, complete: () => {
+
+          }
         }
       );
     }
   }
-  
+
   onSubmit() {
     console.log(this.theCartService.cartItems);
-    // this.theCartService.cartItems.forEach(cart => {
-    //   this.orderItems["productid"]=cart.pdtid;
-    //   this.orderItems["quantity"]=cart.quantity;
-    //   this.orderItems["productPrice"]=cart.quantity * cart.unitPrice;
-    // });
     const cartItems = this.theCartService.cartItems;
     let orderItems: OrderItem[] = cartItems.map(tempCartItem => new OrderItem(tempCartItem));
 
     const payload = {
-      "customer": this.customer,
-      "order": {
-        "customerid": this.customer.id,
-        "customerAddress": this.customer.email,
-        "paymentRefId": this.paymentRefId,
-        "dateCreated": new Date(),
-        "lastUpdated": new Date()
+      customer: this.customer,
+      order: {
+        customerid: this.customer.id,
+        customerAddress: this.customer.email,
+        paymentRefId: this.paymentRefId,
+        dateCreated: new Date(),
+        lastUpdated: new Date()
       },
-      "orderItems": orderItems
+      orderItems
     }
-    console.log(payload)
+    console.log("Payload", payload)
 
     this.checkoutService.placeOrder(payload).subscribe({
       next: response => {
@@ -91,10 +107,11 @@ export class CheckoutComponent implements OnInit {
         alert(`There was an error: ${err.message}`);
       }
     });
-  	
+
   }
-              
+
   reviewCartDetails() {
+    this.products = this.theCartService.cartItems;
     // subscribe to theCartService.totalQuantity
     this.theCartService.totalQuantity.subscribe(
       totalQuantity => this.totalQuantity = totalQuantity
@@ -105,12 +122,31 @@ export class CheckoutComponent implements OnInit {
       totalPrice => this.totalPrice = totalPrice
     );
   }
-  
+
   resetCart() {
     // reset cart data 
     this.theCartService.cartItems = [];
     this.theCartService.totalPrice.next(0);
     this.theCartService.totalQuantity.next(0);
+    sessionStorage.removeItem('products'); // Clear session storage
   }
 
+  updateCart(): void {
+    console.log("UPDATE");
+    sessionStorage.setItem('products', JSON.stringify(this.products));
+    alert("UPDATED");
+  }
+
+  addToCart(item: CartItem): void {
+    this.products.push(item);
+    this.theCartService.cartItems = this.products;
+    this.updateCart(); // Save to session storage
+  }
+
+  removeFromCart(item: CartItem): void {
+    this.products = this.products.filter(cartItem => cartItem.pdtid !== item.pdtid);
+    this.theCartService.cartItems = this.products;
+    this.updateCart(); // Save to session storage
+  }
 }
+
