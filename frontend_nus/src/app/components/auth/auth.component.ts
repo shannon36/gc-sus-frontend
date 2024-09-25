@@ -1,16 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
-import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
+import { IUser } from 'src/app/services/auth/cognito.service';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../auth.service';
+import { AppComponent } from '../../app.component';
+
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css'],
 })
-export class AuthComponent implements OnInit{
+export class AuthComponent {
 
   showSignUp: boolean;
   loading: boolean;
@@ -32,8 +33,7 @@ export class AuthComponent implements OnInit{
   seller!:boolean;
 
 
-  constructor(private router: Router,
-    private cognitoService: CognitoService, private http: HttpClient,public authService: AuthService) {
+  constructor(private router: Router, private http: HttpClient,public appComponent: AppComponent) {
     this.loading = false;
     this.isShowOTP = false;
     this.showSignUp = false;
@@ -47,37 +47,23 @@ export class AuthComponent implements OnInit{
     this.user = {} as IUser;
     //
     this.isLoggedIn = false;
-    this.userEmail = '';
-    //this.checkIsLoggedIn();
+    this.userEmail = "";
+    this.showSignUp = true;
+    this.checkIsLoggedIn();
 
   }
 
-  ngOnInit() {
-    this.authService.loginStatus$.subscribe((loggedIn: boolean) => {
-      //check if user is registered, if not register show registration
-
-      //this.isLoggedIn = loggedIn;
-      console.log("User logged in: " + this.isLoggedIn);
-      this.resetBooleanAndMessage();
-      this.user.email = this.authService.userProfile['email'];
-      this.user.password = 'Abcd1234$';
-      this.showSignUp = false;
-
-      console.log(this.showSignUp)
-    });
-  }
   async checkIsLoggedIn() {
-    this.userEmail = '';
-
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.isLoggedIn = true;
-      this.user1 = {} as IUser;
-      this.user1 = await this.cognitoService.getUser();
-      this.userEmail = this.user1["attributes"]["email"];
-    } else {
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
       this.isLoggedIn = false;
-    }
+      this.user  = this.appComponent.user;
+      this.userEmail = this.appComponent.userEmail;
+      if(!this.appComponent.isLoggedIn){
+        this.user= {} as IUser;
+        this.userEmail ="";
+      }
+    });
   }
   public resetBooleanAndMessage(): void {
     this.hideSignUpButton = false;
@@ -103,27 +89,28 @@ export class AuthComponent implements OnInit{
       this.loading = true;
       this.isShowProgressMessage = true;
       this.progressMessage = "Loading (Signing Up)...";
-      this.cognitoService.signUp(this.user)
-        .then((res) => {
-          this.resetBooleanAndMessage();
-          this.loading = false;
-          this.isShowOTP = true;
-          console.log("end Signup, successful");
-          this.isShowProgressMessage = true;
-          this.progressMessage = "An OTP had sent to your email.";
-          // console.log(this.user.email);
-          this.tempAWSUserIdOnSignUp = res["userSub"];
-          // console.log(res["userSub"]);
-          alert("Sign up success. Check your email for OTP.");
+      this.user.code ="dasdas";
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'accept': '*/*',
+      });
+      const customerData = {
+        id: this.user.name,
+        name: this.user.name,
+        email: this.user.email,
+        roleind: this.seller ? "S" : "C"
+      };
 
-        }).catch((e) => {
-          this.resetBooleanAndMessage();
-          this.loading = false;
-          console.log("end Signup, failed");
-          this.isShowErrorMessage = true;
-          this.errorMessage = e.message;
-          alert("SIGN UP FAIL");
-        });
+      var apiUrl = 'http://143.42.79.86/backend/Users/saveUser';
+      const options = { headers };
+
+      this.http.post(apiUrl, customerData, options).subscribe(
+
+      );
+      this.router.navigate(['/home']).then(() => {
+        window.location.reload();
+
+      });
     }
     else {
       this.isShowErrorMessage = true;
@@ -140,45 +127,7 @@ export class AuthComponent implements OnInit{
       this.loading = true;
       this.isShowProgressMessage = true;
       this.progressMessage = "Loading (Submitting OTP)...";
-      this.cognitoService.confirmSignUp(this.user)
-        .then(() => {
-          this.resetBooleanAndMessage();
-          this.showSignUp = false;
-          this.loading = false;
-          this.isShowProgressMessage = true;
-          this.progressMessage = "Account registered successfully. Please login now.";
-          this.user.password = 'Abcd1234$';
-          this.hideSignUpButton = true;
-          //post identity to customer db only here
 
-          //
-          const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'accept': '*/*',
-          });
-          const customerData = {
-            id: this.tempAWSUserIdOnSignUp,
-            name: this.user.name,
-            email: this.user.email,
-            roleind: this.seller ? "S" : "C"
-          };
-         
-          var apiUrl = 'http://143.42.79.86/backend/Users/saveUser';
-          const options = { headers };
-
-          this.http.post(apiUrl, customerData, options).subscribe(
-
-          );
-
-
-
-        }).catch((e) => {
-          this.resetBooleanAndMessage();
-          this.loading = false;
-          console.log("end Signup, failed");
-          this.isShowErrorMessage = true;
-          this.errorMessage = e.message;
-        });
     } else {
       this.isShowErrorMessage = true;
       this.errorMessage = "OTP must be 6 digits.";
@@ -188,31 +137,13 @@ export class AuthComponent implements OnInit{
   }
 
   public signIn(): void {
-    if (this.user.email != null && this.user.password != null) {
+    if (this.user.email != null) {
 
       this.resetBooleanAndMessage();
       this.isShowProgressMessage = true;
       this.progressMessage = "Signing In...";
       this.loading = true;
-      this.cognitoService.signIn(this.user)
-        .then(() => {
-          this.resetBooleanAndMessage();
 
-          this.user.password = 'Abcd1234$';
-          //refresh brower
-          this.router.navigate(['/home']).then(() => {
-            window.location.reload();
-
-          });
-
-        }).catch((e) => {
-          this.resetBooleanAndMessage();
-
-          this.loading = false;
-          console.log("end sign in, failed");
-          this.isShowErrorMessage = true;
-          this.errorMessage = e.message;
-        });
     } else {
       this.isShowErrorMessage = true;
       this.loading = false;
@@ -226,15 +157,6 @@ export class AuthComponent implements OnInit{
     this.resetBooleanAndMessage();
 
     this.loading = true;
-    this.cognitoService.signOut()
-      .then(() => {
-        this.user.password = 'Abcd1234$';
-        window.location.reload();
-      }).catch((e) => {
-        this.loading = false;
-        console.log("end sign out, failed");
-        this.isShowErrorMessage = true;
-        this.errorMessage = e.message;
-      });
+
   }
 }

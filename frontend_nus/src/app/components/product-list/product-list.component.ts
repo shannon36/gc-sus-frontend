@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { CartItem } from 'src/app/common/cart-item';
 import { Product } from 'src/app/common/product';
 import { ProductCategory } from 'src/app/common/product-category';
 import { CartService } from 'src/app/services/cart/cart.service';
 import { ProductService } from 'src/app/services/product/product.service';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
+import { IUser } from 'src/app/services/auth/cognito.service';
 import { Customer } from 'src/app/common/customer';
 import { CustomerService } from 'src/app/services/customer/customer.service';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-product-list',
@@ -20,6 +22,7 @@ export class ProductListComponent implements OnInit {
   currentCategoryId: string = "C11";
   currentCategoryName: string = "Snacks & Sweets";
   count: number = 0;
+  isRegistered: boolean = false;
   isLoggedIn: boolean = false;
   isAuth: any;
   userEmail: string;
@@ -28,43 +31,41 @@ export class ProductListComponent implements OnInit {
   user: any;
 
   constructor(private productService: ProductService,
-  			  private cognitoService: CognitoService,
-              private cartService: CartService,
+              private router: Router,
+  			      private cartService: CartService,
               private customerService: CustomerService,
-              private route: ActivatedRoute) { 
+              private route: ActivatedRoute,public appComponent: AppComponent) {
   	this.userEmail = '';
   	this.userRole = '';
   	this.checkIsLoggedIn();
-  
+
   } // to access route parameters
 
   // similar to postconstruct
   ngOnInit(): void {
+    if(!this.isRegistered){
+      this.router.navigate(['/auth']);
+    }
     this.route.paramMap.subscribe(() => {
       this.listProducts();
       this.listProductCategories();
     });
   }
-  
+
   async checkIsLoggedIn() {
-	this.userEmail = '';
-	this.userRole = '';
-	
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.isLoggedIn = true;
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
-      console.log(this.userEmail)
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
+      this.isLoggedIn = this.appComponent.isLoggedIn;
+      this.user  = this.appComponent.user;
+      this.userEmail = this.appComponent.userEmail;
+      this.isRegistered = this.appComponent.isRegistered;
+        this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
         this.userName = data.name;
         this.userRole = data.roleind;
-     
+
       })
-    } else {
-      this.isLoggedIn = false;
-    }
+      console.log("User logged in: " + this.userEmail+"  "+this.userName+"   "+this.userRole);
+    });
   }
 
   listProducts() {
@@ -75,7 +76,7 @@ export class ProductListComponent implements OnInit {
     if(hasCategoryId) {
       // get 'id' parameter string. convert it from string to number using +
       this.currentCategoryId = this.route.snapshot.paramMap.get('catid') ?? '';
- 
+
       // get the "name" param string
       this.currentCategoryName = this.route.snapshot.paramMap.get('categoryname') ?? '';
     } else {

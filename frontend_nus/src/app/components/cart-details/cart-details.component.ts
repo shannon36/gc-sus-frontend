@@ -1,8 +1,8 @@
 import { CartService } from './../../services/cart/cart.service';
 import { CartItem } from './../../common/cart-item';
 import { Component, OnInit } from '@angular/core';
-import { CognitoService } from 'src/app/services/auth/cognito.service';
 import { CustomerService } from '../../services/customer/customer.service';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-cart-details',
@@ -19,7 +19,7 @@ export class CartDetailsComponent implements OnInit {
   isSeller !: boolean;
 
 
-  constructor(private cartService: CartService, private cognitoService: CognitoService, private customerService: CustomerService) {
+  constructor(private cartService: CartService, private customerService: CustomerService,public appComponent: AppComponent) {
     this.checkIsLoggedIn();
   }
 
@@ -28,20 +28,15 @@ export class CartDetailsComponent implements OnInit {
   }
 
   async checkIsLoggedIn() {
-
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      let userEmail = "";
-      let user = await this.cognitoService.getUser();
-      userEmail = user["attributes"]["email"];
-      this.customerService.getCustomerInformation(userEmail).subscribe(data => {
-        this.isSeller = data.roleind == "S" ? true : false;
-      });
-      this.isLoggedIn = true;
-    } else {
-      this.isLoggedIn = false;
-    }
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
+      this.isLoggedIn = this.appComponent.isLoggedIn;
+      if(this.isLoggedIn){
+        this.isSeller = this.appComponent.isSeller;
+      }
+    });
   }
+
 
   listCartDetails() {
     // get the handle to the cart items

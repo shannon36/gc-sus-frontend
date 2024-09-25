@@ -10,7 +10,8 @@ import { Orders } from 'src/app/common/orders';
 import { response } from 'express';
 import { Customer } from 'src/app/common/customer';
 import { CustomerService } from 'src/app/services/customer/customer.service';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
+import { IUser } from 'src/app/services/auth/cognito.service';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-checkout',
@@ -32,32 +33,32 @@ export class CheckoutComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
               private theCartService: CartService,
               private customerService: CustomerService,
-              private checkoutService: CheckoutService, 
-              private cognitoService: CognitoService,
+              private checkoutService: CheckoutService,
+              public appComponent: AppComponent,
               private router: Router) {
                 this.userEmail = "";
               }
-              
+
   ngOnInit(): void {
     this.getCustomerInformation();
     this.reviewCartDetails();
   }
 
   async getCustomerInformation() {
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
-
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
+      this.isAuth = this.appComponent.isLoggedIn;
+      this.user = this.appComponent.user;
+      this.userEmail = this.appComponent.userEmail;
       this.customerService.getCustomerInformation(this.userEmail).subscribe(
         data => {console.log(this.customer)
           this.customer = data
         }
       );
-    }
+    });
+
   }
-  
+
   onSubmit() {
     console.log(this.theCartService.cartItems);
     // this.theCartService.cartItems.forEach(cart => {
@@ -91,9 +92,9 @@ export class CheckoutComponent implements OnInit {
         alert(`There was an error: ${err.message}`);
       }
     });
-  	
+
   }
-              
+
   reviewCartDetails() {
     // subscribe to theCartService.totalQuantity
     this.theCartService.totalQuantity.subscribe(
@@ -105,9 +106,9 @@ export class CheckoutComponent implements OnInit {
       totalPrice => this.totalPrice = totalPrice
     );
   }
-  
+
   resetCart() {
-    // reset cart data 
+    // reset cart data
     this.theCartService.cartItems = [];
     this.theCartService.totalPrice.next(0);
     this.theCartService.totalQuantity.next(0);

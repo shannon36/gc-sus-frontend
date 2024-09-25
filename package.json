@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "ng serve"
+  },
+  "dependencies": {
+    "angular-oauth2-oidc": "^17.0.2"
+  }
+}
