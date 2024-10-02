@@ -10,9 +10,8 @@ import { Orders } from 'src/app/common/orders';
 import { response } from 'express';
 import { Customer } from 'src/app/common/customer';
 import { CustomerService } from 'src/app/services/customer/customer.service';
-import { IUser } from 'src/app/services/auth/cognito.service';
 import { AppComponent } from '../../app.component';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
+import { IUser } from 'src/app/services/auth/cognito.service';
 import { CartItem } from 'src/app/common/cart-item';
 
 @Component({
