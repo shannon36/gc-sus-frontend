@@ -39,19 +39,9 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCart(); // Load cart from session storage
+    // this.loadCart(); // Load cart from session storage
     this.getCustomerInformation();
     this.reviewCartDetails();
-  }
-
-  loadCart(): void {
-    const savedCart = sessionStorage.getItem('products');
-    if (savedCart) {
-      this.products = JSON.parse(savedCart);
-      this.theCartService.cartItems = this.products; // Sync with the cart service
-    } else {
-      this.products = []; // Ensure products is initialized to an empty array if nothing is saved
-    }
   }
 
   async getCustomerInformation() {
@@ -121,6 +111,8 @@ export class CheckoutComponent implements OnInit {
     this.theCartService.totalPrice.subscribe(
       totalPrice => this.totalPrice = totalPrice
     );
+
+    this.updateCart();
   }
 
   resetCart() {
@@ -132,21 +124,9 @@ export class CheckoutComponent implements OnInit {
   }
 
   updateCart(): void {
-    console.log("UPDATE");
+    console.log("UPDATE CHECKOUT");
     sessionStorage.setItem('products', JSON.stringify(this.products));
-    alert("UPDATED");
-  }
-
-  addToCart(item: CartItem): void {
-    this.products.push(item);
-    this.theCartService.cartItems = this.products;
-    this.updateCart(); // Save to session storage
-  }
-
-  removeFromCart(item: CartItem): void {
-    this.products = this.products.filter(cartItem => cartItem.pdtid !== item.pdtid);
-    this.theCartService.cartItems = this.products;
-    this.updateCart(); // Save to session storage
+    alert("UPDATED CHECKOUT");
   }
 }
 
