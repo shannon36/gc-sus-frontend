@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ProductService } from './../../services/product/product.service';
 import { ProductCategory } from 'src/app/common/product-category';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
+import { IUser } from 'src/app/services/auth/cognito.service';
 import { CustomerService } from 'src/app/services/customer/customer.service';
 import { Product } from 'src/app/common/product';
 import { Image } from 'src/app/common/image';
 import { ImageService } from 'src/app/services/image/image.service';
+import { AppComponent } from '../../app.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-add',
@@ -40,8 +42,8 @@ export class ProductAddComponent implements OnInit {
 
   constructor(private fb: FormBuilder,
     private productService: ProductService,
-    private cognitoService: CognitoService,
-    private customerService: CustomerService,
+              private router: Router,
+    public appComponent: AppComponent,private customerService: CustomerService,
     private imageService: ImageService
   ) {
   }
@@ -50,25 +52,21 @@ export class ProductAddComponent implements OnInit {
     this.getUserInformation();
     this.listProductCategories();
     this.selectedImageUrl = null;
+    console.log(this.isAuth)
+
+    if(!this.isAuth){
+      this.router.navigate(['/auth']);
+    }
   }
 
   async getUserInformation() {
-    this.userEmail = '';
-    this.userId = '';
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.isLoggedIn = true;
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
-      console.log(this.userEmail)
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
-        this.userId = data.id;
-      });
-
-    } else {
-      this.isLoggedIn = false;
-    }
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
+      this.isAuth = this.appComponent.isRegistered;
+      this.user = this.appComponent.user;
+      this.userEmail = this.appComponent.userEmail;
+      this.userId = this.appComponent.userId;
+    });
     console.log(this.isLoggedIn)
   }
 

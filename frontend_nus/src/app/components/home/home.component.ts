@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
+import { IUser } from 'src/app/services/auth/cognito.service';
 import { CustomerService } from 'src/app/services/customer/customer.service';
+import { AppComponent } from '../../app.component';
+
 
 @Component({
   selector: 'app-home',
@@ -16,43 +18,29 @@ export class HomeComponent {
   userName!: string;
   userRole: string | undefined;
 
-  constructor(private router: Router, private cognitoService: CognitoService, private customerService: CustomerService)  {
+  constructor(private router: Router, private customerService: CustomerService,public appComponent: AppComponent)  {
     this.isLoggedIn = false;
     this.userEmail = '';
     this.checkIsLoggedIn();
 
   }
 
+
+
   async checkIsLoggedIn() {
-    this.userEmail = '';
-    this.userRole = '';
-
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.isLoggedIn = true;
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(
-        {
-          next: data => {
-            console.log("Customer Info", data);
-            this.userName = data.name ?? "";
-            this.userRole = data.roleind;
-          }, error: err => {
-
-
-          }, complete: () => {
-
-          }
-        }
-      );
-    } else {
-      this.isLoggedIn = false;
-    }
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
+      this.isLoggedIn = this.appComponent.isLoggedIn;
+      if(this.isLoggedIn){
+        this.user = this.appComponent.user;
+        this.userEmail = this.appComponent.userEmail;
+        this.userName = this.user.name;
+      }
+      else{
+        this.userEmail = "";
+        this.userName = "";
+      }
+    });
   }
 
-  navigateToAuth() {
-    this.router.navigate(['/auth']); // Navigate to the 'auth' route
-  }
 }

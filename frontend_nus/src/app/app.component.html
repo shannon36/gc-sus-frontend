@@ -6,9 +6,18 @@
   <h2>Welcome to SmartCart</h2>
   <div id="nav-container">
     <ul id="navbar">
+      <!--<li>
+        &lt;!&ndash; (click)="navigateToAuth()" &ndash;&gt;
+        <a routerLink="/auth"
+          routerLinkActive="active" class="{{isDisabled}}">{{(isLoggedIn&&isAuth&&user!=null)?userName:"Login"}}</a>
+      </li>-->
       <li>
-        <a routerLink="/auth" routerLinkActive="active" class="{{isDisabled}}">{{(isLoggedIn&&isAuth&&user!=null)?userName:"Login"}}</a>
+<!--        <a *ngIf="!isLoggedIn" (click)="navigateToAuth()" class="{{ isDisabled }}">Login</a>-->
+        <a *ngIf="!isLoggedIn" (click)="navigateToAuth()" routerLinkActive="active" class="{{isDisabled}}">{{(isLoggedIn&&user!=null)?userName:"Login"}}</a>
+        <a *ngIf="isLoggedIn" (click)="logout()" class="{{ isDisabled }}">Logout ({{ userName }})</a>
       </li>
+
+
       <li><a routerLink="/index" routerLinkActive="active">Home</a></li>
       <li><a routerLink="{{routeName}}" routerLinkActive="active">{{isSeller?'Add Product':'Shop'}}</a></li>
       <li><a routerLinkActive="active">About</a></li>

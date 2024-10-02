@@ -48,7 +48,7 @@
                       <label for="email" class="form-label">Email:</label>
 
                     </div>
-                    <input type="email" id="email" name="email" #email="ngModel" [(ngModel)]="user.email"
+                    <input type="email" id="email" name="email" #email="ngModel" disabled="true" [(ngModel)]="user.email"
                       class="form-control form-control-sm">
                   </div>
                 </div>
@@ -66,7 +66,7 @@
                 </div>
 
                 <!-- password textfield -->
-                <div class="row">
+               <!-- <div class="row">
                   <div class="col">
                     <div>
                       <label for="password" class="form-label">New Password:</label>
@@ -75,7 +75,7 @@
                     <input [type]="user.showPassword ? 'text' : 'password'" id="password" name="password"
                       #password="ngModel" [(ngModel)]="user.password" class="form-control form-control-sm">
                   </div>
-                </div>
+                </div>-->
                 <div class="row">
                   <div class="col mt-3 ">
                     <div>

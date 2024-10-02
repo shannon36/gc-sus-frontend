@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
-
+import { IUser } from 'src/app/services/auth/cognito.service';
+import { AppComponent } from '../../app.component';
 @Component({
   selector: 'app-home',
   templateUrl: './cart.component.html',
@@ -12,7 +12,7 @@ export class CartComponent {
   isLoggedIn: boolean;
   isAuth: any;
   userEmail:String;
-  constructor(private router: Router, private cognitoService: CognitoService) {
+  constructor(private router: Router, public appComponent: AppComponent) {
     this.isLoggedIn = false;
     this.userEmail='';
      this.checkIsLoggedIn();
@@ -20,21 +20,16 @@ export class CartComponent {
   }
 
   async checkIsLoggedIn() {
-    this.userEmail='';
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
+      this.isLoggedIn = this.appComponent.isLoggedIn;
 
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth&&this.isAuth!=null) {
-      this.isLoggedIn = true;
-      this.user = {} as IUser;
-      this.user=await this.cognitoService.getUser();
-this.userEmail=this.user["attributes"]["email"];
-    } else {
-      this.isLoggedIn = false;
-    }
+      this.user  = this.appComponent.user;
+    });
   }
 
   navigateToAuth() {
     this.router.navigate(['/auth']); // Navigate to the 'auth' route
   }
-  
+
 }

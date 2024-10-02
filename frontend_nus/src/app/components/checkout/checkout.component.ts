@@ -10,6 +10,8 @@ import { Orders } from 'src/app/common/orders';
 import { response } from 'express';
 import { Customer } from 'src/app/common/customer';
 import { CustomerService } from 'src/app/services/customer/customer.service';
+import { IUser } from 'src/app/services/auth/cognito.service';
+import { AppComponent } from '../../app.component';
 import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
 import { CartItem } from 'src/app/common/cart-item';
 
@@ -30,13 +32,13 @@ export class CheckoutComponent implements OnInit {
   products: CartItem[] = [];
 
   constructor(private formBuilder: FormBuilder,
-    private theCartService: CartService,
-    private customerService: CustomerService,
-    private checkoutService: CheckoutService,
-    private cognitoService: CognitoService,
-    private router: Router) {
-    this.userEmail = "";
-  }
+              private theCartService: CartService,
+              private customerService: CustomerService,
+              private checkoutService: CheckoutService,
+              public appComponent: AppComponent,
+              private router: Router) {
+                this.userEmail = "";
+              }
 
   ngOnInit(): void {
     // this.loadCart(); // Load cart from session storage
@@ -45,13 +47,11 @@ export class CheckoutComponent implements OnInit {
   }
 
   async getCustomerInformation() {
-    this.userEmail = '';
-
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
+    this.appComponent.loginStatus$.subscribe((loggedIn: boolean) => {
+      //check if user is registered, if not register show registration
+      this.isAuth = this.appComponent.isLoggedIn;
+      this.user = this.appComponent.user;
+      this.userEmail = this.appComponent.userEmail;
       this.customerService.getCustomerInformation(this.userEmail).subscribe(
         {
           next: data => {
@@ -66,7 +66,8 @@ export class CheckoutComponent implements OnInit {
           }
         }
       );
-    }
+    });
+
   }
 
   onSubmit() {
@@ -116,7 +117,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   resetCart() {
-    // reset cart data 
+    // reset cart data
     this.theCartService.cartItems = [];
     this.theCartService.totalPrice.next(0);
     this.theCartService.totalQuantity.next(0);
