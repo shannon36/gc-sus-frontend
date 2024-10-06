@@ -7,7 +7,6 @@ const routes: Routes = [
   // Other routes
   { path: 'auth', component: AuthComponent }, // Define the route for 'auth'
   { path: 'home', component: HomeComponent }, // Define the route for 'auth'
-  { path: '', component: HomeComponent }, // Define the route for 'auth'
   { path: 'index.html', component: HomeComponent}, // Define the route for 'auth'
   { path: 'index.html', component: HomeComponent},
   // Other routes

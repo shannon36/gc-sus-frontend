@@ -63,9 +63,10 @@ export class SellerProductListComponent {
       this.userEmail = this.appComponent.userEmail;
       if(this.isAuth) {
         if (this.userEmail != undefined) {
-          this.productService.getSellerProductList(this.user.username).subscribe(
+          console.log(this.appComponent.userId +" get user product");
+          this.productService.getSellerProductList(this.appComponent.userId).subscribe(
             data => {
-              // console.log("Product List Updated", data);
+               console.log("Product List Updated", data);
               this.products = data;
               this.products.forEach(d => {
                 let id = d.pdtid?.slice(-4);
@@ -85,6 +86,7 @@ export class SellerProductListComponent {
               console.log("Error fetching products", error);
             }
           );
+          this.router.navigate(['/check-products']);
         }
       } else {
       this.router.navigate(['/auth'])

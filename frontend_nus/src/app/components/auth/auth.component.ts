@@ -96,7 +96,7 @@ export class AuthComponent {
         'accept': '*/*',
       });
       const customerData = {
-        id: this.user.name,
+        id: this.user.email.replace(/[^a-zA-Z0-9 ]/g, ''),
         name: this.user.name,
         email: this.user.email,
         roleind: this.seller ? "S" : "C"

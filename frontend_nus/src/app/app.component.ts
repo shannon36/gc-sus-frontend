@@ -31,15 +31,19 @@ export class AppComponent{
     //this.isLoggedIn = false;
     this.userEmail = '';
     this.userId ='';
-    this.authService.loginStatus$.subscribe((loggedIn: boolean) => {
-      this.isLoggedIn = loggedIn;
-      console.log("User logged in: " + this.isLoggedIn);
-      this.checkIsLoggedIn();
-      this.loginStatus.next(loggedIn);
-    });
+
     //this.checkIsLoggedIn().then(r => {});
   }
+  ngOnInit(): void {
+    this.authService.loginStatus$.subscribe((loggedIn: boolean) => {
+      this.isLoggedIn = this.authService.isLoggedIn;;
+      console.log("User logged in: " + this.authService.isLoggedIn);
+      this.checkIsLoggedIn();
 
+      this.loginStatus.next(loggedIn);
+
+    });
+  }
 
   async checkIsLoggedIn() {
 
@@ -71,8 +75,8 @@ export class AppComponent{
             // Set route and disabled status based on the user role
             this.routeName = this.isSeller ? '/addproduct' : '/products';
             this.isDisabled = this.isSeller ? 'disabled' : '';
-            console.log(this.routeName +"   "+data.userId);
-            this.router.navigate([this.routeName]);
+            //console.log("Routing " +this.routeName +"   "+data.userId);
+           // this.router.navigate([this.routeName]);
           }else{
             this.router.navigate(['/auth']);
           }
