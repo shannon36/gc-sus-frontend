@@ -4,7 +4,7 @@ import { IUser } from 'src/app/services/auth/cognito.service';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AppComponent } from '../../app.component';
-
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -34,7 +34,7 @@ export class AuthComponent {
   userRole!: string;
 
 
-  constructor(private router: Router, private http: HttpClient,public appComponent: AppComponent) {
+  constructor(private router: Router, private http: HttpClient,public appComponent: AppComponent,public authService: AuthService) {
     this.loading = false;
     this.isShowOTP = false;
     this.showSignUp = false;
@@ -79,7 +79,7 @@ export class AuthComponent {
     this.resetBooleanAndMessage();
     this.user.password = 'Abcd1234$';
     this.showSignUp = event.target.innerText == 'Register' ? true : false;
-    console.log(this.showSignUp)
+    console.log("onChangeShowSignUp"+this.showSignUp)
   }
 
   public signUp(): void {
@@ -160,5 +160,10 @@ export class AuthComponent {
 
     this.loading = true;
 
+  }
+  navigateToAuth() {
+    //this.router.navigate(['/auth']); // Navigate to the 'auth' route
+    // Trigger OAuth2 login flow
+    this.authService.login();
   }
 }
