@@ -1,5 +1,5 @@
 #Source obtained from:
-#https://github.com/snyk/actions/tree/master/maven-3-jdk-17
+#https://docs.snyk.io/scm-ide-and-ci-cd-integrations/snyk-ci-cd-integrations/github-actions-for-snyk-setup-and-checking-for-vulnerabilities/snyk-node-action
 #workflow for code scanning only
 
 name: Code scanning for maven via Synk
