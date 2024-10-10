@@ -1,0 +1,74 @@
+#header {
+    padding: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column; /* Stack items vertically by default */
+    align-items: center;
+  }
+  
+  .logo {
+    width: 120px;
+    height: auto; /* Maintain aspect ratio */
+  }
+  
+  #nav-container {
+    width: 100%; /* Take full width for the navbar */
+  }
+  
+  #navbar {
+    display: flex;
+    flex-direction: row; /* Stack items on small screens */
+    align-items: center;
+    padding: 0;
+    list-style: none;
+    margin-top: 8px; /* Add some space between logo and navbar */
+  }
+  
+  #navbar li {
+    margin: 8px 0;
+  }
+  
+  #navbar a {
+    text-decoration: none;
+    padding: 12px 16px; /* Add padding for touch targets */
+    display: block; /* Make the link block-level for better touch area */
+  }
+  
+  footer {
+    text-align: center;
+    padding: 16px;
+  }
+  
+  footer ul {
+    display: flex;
+    justify-content: center; /* Center items in footer */
+    list-style: none;
+    padding: 0;
+  }
+  
+  footer li {
+    margin: 0 10px;
+  }
+  
+  /* Media Queries */
+  @media (min-width: 600px) {
+    #header {
+      flex-direction: row; /* Align items in a row on larger screens */
+      justify-content: space-between; /* Space between logo and navbar */
+      align-items: center; /* Center items vertically */
+    }
+  
+    #nav-container {
+      margin-left: 16px; /* Add space between logo and navbar */
+    }
+  
+    #navbar {
+      flex-direction: row; /* Align items horizontally on larger screens */
+      margin-top: 0; /* Remove top margin */
+    }
+  
+    #navbar li {
+      margin: 0 15px; /* More space between items */
+    }
+  }
+  
