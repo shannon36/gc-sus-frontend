@@ -64,7 +64,7 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
     permissions:
       # required for all workflows
-      security-events: write
+      security-events: write-all
       # only required for workflows in private repositories
       actions: read
       contents: read
