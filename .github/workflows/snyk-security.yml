@@ -17,7 +17,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --sarif-file-output=snyk.sarif --file=./frontend_nus/angular.json
+          args: --sarif-file-output=snyk.sarif --workdir=./frontend_nus/**
       - name: Create SARIF directory and move SARIF files
         run: |
           mkdir sarif_files &&
