@@ -24,13 +24,12 @@ export class CartDetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  
     this.loadCart(); // Load cart from session storage
     this.listCartDetails();
   }
 
   loadCart(): void {
-    const savedCart = sessionStorage.getItem('cartItem');
+    const savedCart = sessionStorage.getItem('products');
     if (savedCart) {
       this.cartItem = JSON.parse(savedCart);
       this.cartService.cartItems = this.cartItem; // Sync with the cart service
@@ -76,7 +75,7 @@ export class CartDetailsComponent implements OnInit {
 
   updateCart(): void {
     console.log("UPDATE");
-    sessionStorage.setItem('cartItem', JSON.stringify(this.cartItem));
+    sessionStorage.setItem('products', JSON.stringify(this.cartItem));
     alert("UPDATED");
   }
 
