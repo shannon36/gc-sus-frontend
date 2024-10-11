@@ -1,5 +1,4 @@
-#Source obtained from:
-#https://github.com/snyk/actions/tree/master/maven-3-jdk-17
+#Source obtained from snyk
 #workflow for code scanning only
 
 name: Code scanning for node packages via snyk
@@ -16,7 +15,7 @@ jobs:
         with:
           node-version: 20
       - name: install node packages
-        run: npm install
+        run: npm install --prefix ./frontend_nus
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         continue-on-error: true # To make sure that SARIF upload gets called
