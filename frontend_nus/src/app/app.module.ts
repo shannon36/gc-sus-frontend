@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { Routes, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpClientXsrfModule, provideHttpClient, withXsrfConfiguration } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -26,23 +26,24 @@ import { ErrorComponent } from './components/error/error.component';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { SellerProductListComponent } from './components/seller-product-list/seller-product-list.component';
+import { XsrfInterceptor } from './interceptor/csrf-interceptor';
 
 // order of routes is important coz first match wins(start from more specific to generic)
 const routes: Routes = [
-  {path: 'index', component: HomeComponent},
-  {path: 'products', component: ProductListComponent},
-  {path: 'products/:pdtid', component: ProductDetailsComponent},
-  {path: 'products/catid/:catid/:categoryname', component: ProductListComponent},
-  {path: 'cart', component: CartComponent},
-  {path: 'cart-details', component: CartDetailsComponent},
-  {path: 'checkout', component: CheckoutComponent},
-  {path: 'order-history', component: OrderHistoryComponent},
-  {path: 'order-details/:orderId', component: OrderDetailsComponent},
-  {path: 'error', component: ErrorComponent},
-  {path: 'addproduct', component: ProductAddComponent},
-  {path: 'check-products', component: SellerProductListComponent},
-  {path: '', redirectTo: '/index', pathMatch: 'full'},
-  {path: '**', redirectTo: '/error', pathMatch: 'full'},
+  { path: 'index', component: HomeComponent },
+  { path: 'products', component: ProductListComponent },
+  { path: 'products/:pdtid', component: ProductDetailsComponent },
+  { path: 'products/catid/:catid/:categoryname', component: ProductListComponent },
+  { path: 'cart', component: CartComponent },
+  { path: 'cart-details', component: CartDetailsComponent },
+  { path: 'checkout', component: CheckoutComponent },
+  { path: 'order-history', component: OrderHistoryComponent },
+  { path: 'order-details/:orderId', component: OrderDetailsComponent },
+  { path: 'error', component: ErrorComponent },
+  { path: 'addproduct', component: ProductAddComponent },
+  { path: 'check-products', component: SellerProductListComponent },
+  { path: '', redirectTo: '/index', pathMatch: 'full' },
+  { path: '**', redirectTo: '/error', pathMatch: 'full' },
 ];
 
 @NgModule({
@@ -68,13 +69,18 @@ const routes: Routes = [
     RouterModule.forRoot(routes),
     BrowserModule,
     HttpClientModule, //to access rest api
+    HttpClientXsrfModule.withOptions({
+      cookieName: 'XSRF-TOKEN', // This must match the Spring Boot cookie name
+      headerName: 'X-XSRF-TOKEN' // This must match the Spring Boot header name
+    }),
     AppRoutingModule,
     ReactiveFormsModule, // Add ReactiveFormsModule
     FormsModule,
     BrowserAnimationsModule,  // Required for Angular Material
     MatDialogModule
   ],
-  providers: [ProductService],
+  // providers: [ProductService],
+    providers: [ProductService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

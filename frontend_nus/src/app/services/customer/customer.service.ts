@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { Customer } from 'src/app/common/customer';
 
 @Injectable({
@@ -15,10 +15,11 @@ export class CustomerService {
 
   getCustomerInformation(email: string): Observable<Customer> {
     //const url = `${this.baseUrl}/Customers/customersEmail?custEmail=${email}`;
-    const url = `${this.baseUrl}/Users/userEmail?email=${email}`;
+    const url = `${this.baseUrl}/Users/userEmail?email=${email}` ;
 
     return this.httpClient.get<Customer>(url);
   }
+
 
 
 }

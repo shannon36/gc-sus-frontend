@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
 import { CustomerService } from './services/customer/customer.service';
+import { ApiService } from './services/api.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,7 @@ export class AppComponent {
   isDisabled: string = "";
   routeName: string = "/products";
   userName: string | undefined;
-  constructor(private router: Router, private cognitoService: CognitoService, private customerService: CustomerService) {
+  constructor(private router: Router, private cognitoService: CognitoService, private customerService: CustomerService, private apiService: ApiService) {
     this.isLoggedIn = false;
     this.userEmail = '';
     this.checkIsLoggedIn();
@@ -44,6 +45,11 @@ export class AppComponent {
     } else {
       this.isLoggedIn = false;
     }
+
+    this.apiService.initializeCsrfToken().subscribe(() => {
+      console.log("CSRF token initialized");
+    });
+
   }
 
   navigateToAuth() {
