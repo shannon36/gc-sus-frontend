@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 20
       - name: install node packages
-        run: npm install --file=./frontend_nus/package.json
+        run: npm install
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         continue-on-error: true # To make sure that SARIF upload gets called
