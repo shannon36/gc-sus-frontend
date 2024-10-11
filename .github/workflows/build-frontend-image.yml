@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    permissions: write-all
     runs-on: ubuntu-latest
 
     steps:
@@ -40,6 +41,23 @@ jobs:
       run: |
         docker tag ghcr.io/shannon36/gc-sus-frontend:latest ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
         docker push ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        image-ref: 'ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}'
+        format: 'sarif'
+        exit-code: '0'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
 
   update-frontend-manifest:
     runs-on: ubuntu-latest
