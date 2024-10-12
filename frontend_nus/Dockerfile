@@ -7,19 +7,14 @@ ENV NODE_ENV=20.18.0
 RUN addgroup --gid 1001 appgroup && \
     adduser --uid 1001 --gid 1001 --disabled-password --gecos "" appuser
 
-# Switch to the non-root user
-USER appuser
-
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-#RUN npm install -g @angular/cli - previously
-RUN npm install
+RUN npm install -g @angular/cli - previously
 
 #Ensure that both node_modules and package-lock.json are removed.
 COPY package*.json ./
 RUN rm -rf node_modules package-lock.json
-
 
 # Install application dependencies
 RUN npm install
@@ -29,6 +24,9 @@ COPY . .
 
 # Build the Angular application
 RUN npm run build
+
+# Switch to the non-root user
+USER appuser
 
 # Expose the default web application port
 EXPOSE 80
