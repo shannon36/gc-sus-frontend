@@ -43,7 +43,7 @@ jobs:
         docker push ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
     
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@0.20.0
+      uses: aquasecurity/trivy-action@0.27.0
       with:
         image-ref: 'ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}'
         format: 'table'
