@@ -10,7 +10,7 @@ RUN addgroup --gid 1001 appgroup && \
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-RUN npm install -g @angular/cli - previously
+RUN npm install -g @angular/cli
 
 #Ensure that both node_modules and package-lock.json are removed.
 COPY package*.json ./
