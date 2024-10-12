@@ -11,7 +11,9 @@ on:
 
 jobs:
   build:
-    permissions: write-all
+    permissions:
+      contents: read  # Required for checkout action
+      security-events: write-all  # Required to upload SARIF results
     runs-on: ubuntu-latest
 
     steps:
@@ -50,7 +52,7 @@ jobs:
         exit-code: '0'
         ignore-unfixed: true
         vuln-type: 'os,library'
-        severity: 'CRITICAL'
+        severity: 'CRITICAL,HIGH'
         output: 'trivy-results.sarif'
 
     - name: Upload Trivy scan results to GitHub Security tab
