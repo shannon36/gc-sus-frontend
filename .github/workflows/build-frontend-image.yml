@@ -11,11 +11,12 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
+    
     permissions:
       contents: read  # Required for checkout action
       security-events: write-all  # Required to upload SARIF results
-    runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
