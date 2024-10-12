@@ -41,17 +41,27 @@ jobs:
       run: |
         docker tag ghcr.io/shannon36/gc-sus-frontend:latest ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
         docker push ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}
-    
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@0.27.0
+
+    - name: Anchore scanner
+      uses: anchore/scan-action@v3
+      id: scan
       with:
-        image-ref: 'ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}'
-        format: 'table'
-        exit-code: '1'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'
-        #output: 'trivy-results.sarif'
+          image: "ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}"
+    
+    - name: upload Anchore scan SARIF report
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+    #- name: Run Trivy vulnerability scanner
+    #  uses: aquasecurity/trivy-action@0.27.0
+    #  with:
+    #    image-ref: 'ghcr.io/shannon36/gc-sus-frontend:${{ github.sha }}'
+    #    format: 'table'
+    #    exit-code: '1'
+    #    ignore-unfixed: true
+    #    vuln-type: 'os,library'
+    #    severity: 'CRITICAL,HIGH'
+    #    #output: 'trivy-results.sarif'
 
     #- name: Upload Trivy scan results to GitHub Security tab
     #  uses: github/codeql-action/upload-sarif@v3
