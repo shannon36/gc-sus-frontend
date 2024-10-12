@@ -1,6 +1,6 @@
 # Use an official Node runtime as the base image
 #FROM node:20.18.0
-FROM node:20-alpine as base
+FROM node:20.18-slim as base
 ENV NODE_ENV=20.18.0
 
 # Set the working directory in the container
