@@ -3,6 +3,13 @@
 FROM node:20.18-slim as base
 ENV NODE_ENV=20.18.0
 
+# Create a non-root user and group (with arbitrary UID/GID)
+RUN addgroup --gid 1001 appgroup && \
+    adduser --uid 1001 --gid 1001 --disabled-password --gecos "" appuser
+
+# Switch to the non-root user
+USER appuser
+
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
@@ -26,6 +33,6 @@ RUN npm run build
 EXPOSE 80
 
 # Start the Node.js application
-CMD [ "npm", "start", "--", "--port", "80" , "--host", "0.0.0.0" ]
+CMD [ "npm", "start", "--", "--port", "80" ] #, "--host", "0.0.0.0"  - disabling run as root user
 
 
