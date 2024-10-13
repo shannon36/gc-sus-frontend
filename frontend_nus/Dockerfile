@@ -4,8 +4,8 @@ FROM node:20.18-slim as base
 ENV NODE_ENV=20.18.0
 
 # Create a non-root user and group (with arbitrary UID/GID)
-#RUN addgroup --gid 1001 appgroup && \
-#    adduser --uid 1001 --gid 1001 --disabled-password --gecos "" appuser
+RUN addgroup --gid 1001 appgroup && \
+    adduser --uid 1001 --gid 1001 --disabled-password --gecos "" appuser
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -25,12 +25,16 @@ COPY . .
 # Build the Angular application
 RUN npm run build
 
+# Ensure the non-root user has permissions to the application directory
+RUN chown -R appuser:appgroup /usr/src/app
+
 # Switch to the non-root user
-#USER appuser
+USER appuser
 
 # Expose the default web application port
 EXPOSE 80
 
 # Start the Node.js application
-CMD [ "npm", "start", "--", "--port", "80", "--host", "0.0.0.0" ]
+CMD [ "npm", "start", "--", "--port", "80" ]
+#"--host", "0.0.0.0"
 
