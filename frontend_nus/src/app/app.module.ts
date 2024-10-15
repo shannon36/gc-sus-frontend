@@ -27,6 +27,8 @@ import { OrderHistoryComponent } from './components/order-history/order-history.
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { SellerProductListComponent } from './components/seller-product-list/seller-product-list.component';
 
+import { OAuthModule } from 'angular-oauth2-oidc';
+
 // order of routes is important coz first match wins(start from more specific to generic)
 const routes: Routes = [
   {path: 'index', component: HomeComponent},
@@ -72,7 +74,8 @@ const routes: Routes = [
     ReactiveFormsModule, // Add ReactiveFormsModule
     FormsModule,
     BrowserAnimationsModule,  // Required for Angular Material
-    MatDialogModule
+    MatDialogModule,
+    OAuthModule.forRoot(),
   ],
   providers: [ProductService],
   bootstrap: [AppComponent]
