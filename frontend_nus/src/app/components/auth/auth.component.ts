@@ -1,15 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CustomerService } from 'src/app/services/customer/customer.service';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css'],
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit {
 
   showSignUp: boolean;
   loading: boolean;
@@ -33,7 +36,7 @@ export class AuthComponent {
 
 
   constructor(private router: Router,
-    private cognitoService: CognitoService, private http: HttpClient, private customerService: CustomerService) {
+    private cognitoService: CognitoService, private http: HttpClient, private customerService: CustomerService, private oauthService: OAuthService) {
     this.loading = false;
     this.isShowOTP = false;
     this.showSignUp = false;
@@ -48,36 +51,74 @@ export class AuthComponent {
     //
     this.isLoggedIn = false;
     this.userEmail = '';
+    this.configureOAuth();
     this.checkIsLoggedIn();
 
   }
+
+  ngOnInit() {
+    this.oauthService.events
+      .pipe(filter(e => e.type === 'token_received'))
+      .subscribe(_ => this.handleNewToken());
+  }
+
+  private configureOAuth() {
+    this.oauthService.configure({
+      clientId: '1090601764279-2njt06m8470ls2fo7h7aie8rltdjcgns.apps.googleusercontent.com',
+      //clientId: '1011072988102-op2udhg3rl9un35gnmug8m1rsdob9f8n.apps.googleusercontent.com',
+      issuer: 'https://accounts.google.com',
+      // redirectUri: window.location.origin + '/auth',
+      redirectUri: 'http://localhost:4200' + '/auth',
+      // redirectUri: 'http://localhost:8080/login/oauth2/code/google', // TODO: Spring Boot server URL
+      scope: 'openid profile email',
+      strictDiscoveryDocumentValidation: false,
+      responseType: 'code',
+      showDebugInformation: true, // Remove this in production
+      oidc: true,
+      // Add these lines:
+      customQueryParams: {
+        prompt: 'select_account consent'
+      }
+    });
+    this.oauthService.loadDiscoveryDocumentAndTryLogin();
+  }
+
+  private handleNewToken() {
+    const idToken = this.oauthService.getIdToken();
+    // Send the ID token to your backend for validation and user creation/update
+    this.http.post('/api/auth/google', { idToken }).subscribe({
+      next: (response: any) => {
+        // Handle successful authentication
+        // Store the JWT from your backend, if applicable
+        localStorage.setItem('jwt', response.jwt);
+        this.checkIsLoggedIn();
+      },
+      error: (error) => {
+        console.error('Authentication error', error);
+        // Handle error
+      }
+    });
+  }
+
   async checkIsLoggedIn() {
-    this.userEmail = '';
-
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.isLoggedIn = true;
-      this.user1 = {} as IUser;
-      this.user1 = await this.cognitoService.getUser();
-      this.userEmail = this.user1["attributes"]["email"];
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(
-        {
-          next: data => {
-            console.log("Customer Info", data);
-            this.userName = data.name ?? "";
-            this.userRole = data.roleind ?? "";
-          }, error: err => {
-
-
-          }, complete: () => {
-
-          }
+    this.isLoggedIn = this.oauthService.hasValidAccessToken();
+    if (this.isLoggedIn) {
+      const claims = this.oauthService.getIdentityClaims();
+      this.userEmail = claims['email'];
+      this.userName = claims['name'];
+      // Fetch additional user information if needed
+      this.customerService.getCustomerInformation(this.userEmail).subscribe({
+        next: (data) => {
+          console.log("Customer Info", data);
+          this.userRole = data.roleind ?? "";
+        },
+        error: (err) => {
+          console.error("Error fetching customer information", err);
         }
-      );
-    } else {
-      this.isLoggedIn = false;
+      });
     }
   }
+
   public resetBooleanAndMessage(): void {
     this.hideSignUpButton = false;
     this.isShowProgressMessage = false;
@@ -187,54 +228,11 @@ export class AuthComponent {
   }
 
   public signIn(): void {
-    if (this.user.email != null && this.user.password != null) {
-
-      this.resetBooleanAndMessage();
-      this.isShowProgressMessage = true;
-      this.progressMessage = "Signing In...";
-      this.loading = true;
-      this.cognitoService.signIn(this.user)
-        .then(() => {
-          this.resetBooleanAndMessage();
-
-          this.user.password = '';
-          //refresh brower
-          this.router.navigate(['/home']).then(() => {
-            window.location.reload();
-
-          });
-
-        }).catch((e) => {
-          this.resetBooleanAndMessage();
-
-          this.loading = false;
-          console.log("end sign in, failed");
-          this.isShowErrorMessage = true;
-          this.errorMessage = e.message;
-        });
-    } else {
-      this.isShowErrorMessage = true;
-      this.loading = false;
-      this.errorMessage = "Do not leave blanks.";
-    }
+    this.oauthService.initLoginFlow();
   }
 
   public logout(): void {
-    console.log("start sign out");
-
-    this.resetBooleanAndMessage();
-    sessionStorage.clear();
-
-    this.loading = true;
-    this.cognitoService.signOut()
-      .then(() => {
-        this.user.password = '';
-        window.location.reload();
-      }).catch((e) => {
-        this.loading = false;
-        console.log("end sign out, failed");
-        this.isShowErrorMessage = true;
-        this.errorMessage = e.message;
-      });
+    this.oauthService.logOut();
+    this.router.navigate(['/home']);
   }
 }
