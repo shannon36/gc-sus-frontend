@@ -65,14 +65,11 @@ export class AuthComponent implements OnInit {
   private configureOAuth() {
     this.oauthService.configure({
       clientId: '1090601764279-2njt06m8470ls2fo7h7aie8rltdjcgns.apps.googleusercontent.com',
-      //clientId: '1011072988102-op2udhg3rl9un35gnmug8m1rsdob9f8n.apps.googleusercontent.com',
       issuer: 'https://accounts.google.com',
-      // redirectUri: window.location.origin + '/auth',
-      redirectUri: 'http://localhost:4200' + '/auth',
-      // redirectUri: 'http://localhost:8080/login/oauth2/code/google', // TODO: Spring Boot server URL
+      redirectUri: window.location.origin + '/auth',
       scope: 'openid profile email',
       strictDiscoveryDocumentValidation: false,
-      responseType: 'code',
+      responseType: 'token id_token',
       showDebugInformation: true, // Remove this in production
       oidc: true,
       // Add these lines:
@@ -80,13 +77,19 @@ export class AuthComponent implements OnInit {
         prompt: 'select_account consent'
       }
     });
-    this.oauthService.loadDiscoveryDocumentAndTryLogin();
+    this.oauthService.setupAutomaticSilentRefresh();
+    this.oauthService.loadDiscoveryDocumentAndTryLogin().then( () => Promise.resolve() );
   }
 
   private handleNewToken() {
     const idToken = this.oauthService.getIdToken();
+    console.log(`id token from oauth service: ${idToken}`);
+    const headers = {
+      'id_token': idToken
+    };
+
     // Send the ID token to your backend for validation and user creation/update
-    this.http.post('/api/auth/google', { idToken }).subscribe({
+    this.http.get('http://localhost:8080/auth/token', { headers }).subscribe({
       next: (response: any) => {
         // Handle successful authentication
         // Store the JWT from your backend, if applicable
@@ -101,11 +104,13 @@ export class AuthComponent implements OnInit {
   }
 
   async checkIsLoggedIn() {
-    this.isLoggedIn = this.oauthService.hasValidAccessToken();
+    // TODO: Call backend user endpoint to get current user information using JWT
+    this.isLoggedIn = this.oauthService.hasValidIdToken();
     if (this.isLoggedIn) {
-      const claims = this.oauthService.getIdentityClaims();
-      this.userEmail = claims['email'];
-      this.userName = claims['name'];
+      console.log(`Hello i got access token: ${this.isLoggedIn}`);
+      // const claims = this.oauthService.getIdentityClaims();
+      // this.userEmail = claims['email'];
+      // this.userName = claims['name'];
       // Fetch additional user information if needed
       this.customerService.getCustomerInformation(this.userEmail).subscribe({
         next: (data) => {
@@ -228,7 +233,7 @@ export class AuthComponent implements OnInit {
   }
 
   public signIn(): void {
-    this.oauthService.initLoginFlow();
+    this.oauthService.initImplicitFlow();
   }
 
   public logout(): void {
