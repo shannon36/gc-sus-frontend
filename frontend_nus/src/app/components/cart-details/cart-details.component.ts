@@ -38,6 +38,7 @@ export class CartDetailsComponent implements OnInit {
     }
   }
 
+  // TODO: Change this to use some auth util
   async checkIsLoggedIn() {
 
     this.isAuth = await this.cognitoService.isAuthenticated();

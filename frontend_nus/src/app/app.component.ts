@@ -25,6 +25,7 @@ export class AppComponent {
 
   }
 
+  // TODO: Change this to use some auth util
   async checkIsLoggedIn() {
     this.userEmail = '';
 

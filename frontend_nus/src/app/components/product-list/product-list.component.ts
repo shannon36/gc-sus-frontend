@@ -46,10 +46,12 @@ export class ProductListComponent implements OnInit {
     });
   }
   
+  // TODO: Change this to use some auth util
   async checkIsLoggedIn() {
 	this.userEmail = '';
 	this.userRole = '';
 	
+    // TODO: Change this cognito to oauth jwt validation
     this.isAuth = await this.cognitoService.isAuthenticated();
     if (this.isAuth && this.isAuth != null) {
       this.isLoggedIn = true;
@@ -59,7 +61,6 @@ export class ProductListComponent implements OnInit {
       this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
         this.userName = data.name;
         this.userRole = data.roleind;
-     
       })
     } else {
       this.isLoggedIn = false;
