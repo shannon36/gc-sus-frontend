@@ -27,6 +27,7 @@
     "@aws-amplify/ui-angular": "^4.0.9",
     "@aws-amplify/xr": "^4.0.15",
     "@fortawesome/fontawesome-free": "^6.4.2",
+    "@popperjs/core": "^2.11.8",
     "amazon-cognito-identity-js": "^6.3.6",
     "angular-oauth2-oidc": "^17.0.2",
     "angular-oauth2-oidc-jwks": "^17.0.2",
