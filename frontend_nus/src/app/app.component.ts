@@ -12,7 +12,7 @@ export class AppComponent {
   title = 'nusiss-smartcart';
 
   isLoggedIn: boolean = false;
-  userInfo: IUserInfo = { email: '', name: '', role: ''};
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
 
   user: any;
   isAuth: any;
@@ -31,12 +31,12 @@ export class AppComponent {
     // Subscribe to login state
     this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;
-      console.log(`isLoggedIn: ${this.isLoggedIn}`)
     });
 
     // Subscribe to user info updates
     this.authUtilService.getUserInfo$().subscribe((userInfo) => {
       this.userInfo = userInfo;
+      console.log(`[app] user info: ${JSON.stringify(this.userInfo)}`);
       if (this.isLoggedIn) {
         this.user = this.userInfo;
         this.userName = this.userInfo.name;

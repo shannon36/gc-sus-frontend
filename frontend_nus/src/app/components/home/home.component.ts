@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthUtilService, IUserInfo } from 'src/app/services/auth/auth-util.service';
-import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
-import { CustomerService } from 'src/app/services/customer/customer.service';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +9,7 @@ import { CustomerService } from 'src/app/services/customer/customer.service';
 })
 export class HomeComponent {
   user: any;
-  userInfo: IUserInfo = { email: '', name: '', role: ''};
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   isLoggedIn: boolean;
   isAuth: any;
   userEmail: string;

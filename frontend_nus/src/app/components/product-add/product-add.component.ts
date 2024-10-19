@@ -16,7 +16,7 @@ import { AuthUtilService } from 'src/app/services/auth/auth-util.service';
 })
 export class ProductAddComponent implements OnInit {
   user: any;
-  userInfo: IUserInfo = { email: '', name: '', role: ''};
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
 
   isLoggedIn: boolean = true;
   userEmail: string = "";
@@ -55,37 +55,17 @@ export class ProductAddComponent implements OnInit {
     // Subscribe to user info updates
     this.authUtilService.getUserInfo$().subscribe((userInfo) => {
       this.userInfo = userInfo;
-      this.userEmail = userInfo.email;
-
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
-        this.userId = data.id;
-      });
+      console.log(`[productAdd] user info: ${JSON.stringify(this.userInfo)}`);
+      if (this.userInfo){
+        this.userEmail = userInfo.email;
+        this.userId = userInfo.id;
+      }
     });
 
     // this.getUserInformation();
     this.listProductCategories();
     this.selectedImageUrl = null;
   }
-
-  // async getUserInformation() {
-  //   this.userEmail = '';
-  //   this.userId = '';
-  //   this.isAuth = await this.cognitoService.isAuthenticated();
-  //   if (this.isAuth && this.isAuth != null) {
-  //     this.isLoggedIn = true;
-  //     this.user = {} as IUser;
-  //     this.user = await this.cognitoService.getUser();
-  //     this.userEmail = this.user["attributes"]["email"];
-  //     console.log(this.userEmail)
-  //     this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
-  //       this.userId = data.id;
-  //     });
-
-  //   } else {
-  //     this.isLoggedIn = false;
-  //   }
-  //   console.log(this.isLoggedIn)
-  // }
 
   listProductCategories() {
     this.productService.getProductCategories().subscribe(

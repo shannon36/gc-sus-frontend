@@ -10,6 +10,7 @@ export interface IUserInfo {
   email: string;
   name: string;
   role: string;
+  id: string;
 }
 
 @Injectable({
@@ -74,7 +75,8 @@ export class AuthUtilService {
       const userInfo = {
         name: decodedToken.name,
         email: decodedToken.email,
-        role: decodedToken.roles
+        role: decodedToken.roles,
+        id: decodedToken.userId
       } as IUserInfo;
       this.userInfo.next(userInfo);  // Update user information
     } catch (error) {

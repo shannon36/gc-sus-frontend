@@ -16,7 +16,7 @@ export class AuthComponent {
   userName: string = '';  // For registering user
   userRole: string = 'C';  // Default role is Customer
   isLoggedIn: boolean = false;  // Flag to check if user is logged in
-  loggedInUserInfo: IUserInfo = { email: '', name: '', role: ''};
+  loggedInUserInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   loggedInUserName: string = '';  // Holds the logged-in user's name
   loggedInUserRole: string = '';  // Holds the logged-in user's role
 
@@ -120,7 +120,7 @@ export class AuthComponent {
   // Logout functionality
   logout() {
     localStorage.removeItem('jwt');
-    this.isLoggedIn = false;
+    this.authUtilService.checkIfLoggedIn();
     this.router.navigate(['/home']);
   }
 }

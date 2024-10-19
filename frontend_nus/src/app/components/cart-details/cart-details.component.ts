@@ -1,7 +1,6 @@
 import { CartService } from './../../services/cart/cart.service';
 import { CartItem } from './../../common/cart-item';
 import { Component, OnInit } from '@angular/core';
-import { CustomerService } from '../../services/customer/customer.service';
 import { IUserInfo, AuthUtilService } from 'src/app/services/auth/auth-util.service';
 
 @Component({
@@ -11,7 +10,7 @@ import { IUserInfo, AuthUtilService } from 'src/app/services/auth/auth-util.serv
 })
 export class CartDetailsComponent implements OnInit {
 
-  userInfo: IUserInfo = { email: '', name: '', role: ''};
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   cartItem: CartItem[] = [];
   totalPrice: number = 0.00;
   totalQuantity: number = 0;
@@ -19,7 +18,7 @@ export class CartDetailsComponent implements OnInit {
   isAuth: any;
   isSeller !: boolean;
 
-  constructor(private cartService: CartService, private customerService: CustomerService, private authUtilService: AuthUtilService) {}
+  constructor(private cartService: CartService, private authUtilService: AuthUtilService) {}
 
   ngOnInit(): void {
     // Subscribe to login state
@@ -30,9 +29,7 @@ export class CartDetailsComponent implements OnInit {
     // Subscribe to user info updates
     this.authUtilService.getUserInfo$().subscribe((userInfo) => {
       this.userInfo = userInfo;
-      this.customerService.getCustomerInformation(userInfo.email).subscribe(data => {
-        this.isSeller = data.roleind == "S" ? true : false;
-      });
+      this.isSeller = userInfo.role === "S";
     });
 
     this.loadCart(); // Load cart from session storage

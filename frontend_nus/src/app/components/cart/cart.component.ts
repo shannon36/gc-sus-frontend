@@ -7,7 +7,7 @@ import { IUserInfo, AuthUtilService } from 'src/app/services/auth/auth-util.serv
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent {
-  userInfo: IUserInfo = { email: '', name: '', role: ''};
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   isLoggedIn: boolean = false;
   userEmail:String = '';
   constructor(private authUtilService: AuthUtilService) {}

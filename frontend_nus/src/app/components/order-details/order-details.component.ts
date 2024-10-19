@@ -14,7 +14,7 @@ import { ProductService } from 'src/app/services/product/product.service';
 })
 export class OrderDetailsComponent {
 
-  userInfo: IUserInfo = { email: '', name: '', role: ''};
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   orders: OrderItem[] = [];
   items: Product[] = [];
   itemQty: { [index: string]: any } = {}

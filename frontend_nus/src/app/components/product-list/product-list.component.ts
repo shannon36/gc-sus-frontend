@@ -14,7 +14,7 @@ import { IUserInfo, AuthUtilService } from 'src/app/services/auth/auth-util.serv
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
-  userInfo: IUserInfo = { email: '', name: '', role: ''};
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   products: Product[] = [];
   productCategories: ProductCategory[] = [];
   currentCategoryId: string = "C11";
@@ -29,7 +29,6 @@ export class ProductListComponent implements OnInit {
 
   constructor(private productService: ProductService,
               private cartService: CartService,
-              private customerService: CustomerService,
               private route: ActivatedRoute,
               private authUtilService: AuthUtilService
              ) {
@@ -45,12 +44,12 @@ export class ProductListComponent implements OnInit {
 
     // Subscribe to user info updates
     this.authUtilService.getUserInfo$().subscribe((userInfo) => {
-      this.userInfo = userInfo;
-      this.userEmail = userInfo.email;
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
-        this.userName = data.name;
-        this.userRole = data.roleind;
-      })
+      if (this.userInfo){
+        this.userInfo = userInfo;
+        this.userEmail = userInfo.email;
+        this.userName = userInfo.name;
+        this.userRole = userInfo.role;
+      }
     });
 
     this.route.paramMap.subscribe(() => {
