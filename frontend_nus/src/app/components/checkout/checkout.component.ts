@@ -1,17 +1,12 @@
-import { Purchase } from './../../common/purchase';
 import { OrderItem } from './../../common/order-item';
 import { CheckoutService } from './../../services/checkout/checkout.service';
 import { CartService } from './../../services/cart/cart.service';
 
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Orders } from 'src/app/common/orders';
-import { response } from 'express';
+import { FormBuilder } from '@angular/forms';
 import { Customer } from 'src/app/common/customer';
-import { CustomerService } from 'src/app/services/customer/customer.service';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
 import { CartItem } from 'src/app/common/cart-item';
+import { AuthUtilService, IUserInfo } from 'src/app/services/auth/auth-util.service';
 
 @Component({
   selector: 'app-checkout',
@@ -20,6 +15,8 @@ import { CartItem } from 'src/app/common/cart-item';
 })
 export class CheckoutComponent implements OnInit {
 
+  isLoggedIn: boolean = false;
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   totalPrice: number = 0;
   totalQuantity: number = 0;
   customer: Customer = new Customer();
@@ -31,42 +28,33 @@ export class CheckoutComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder,
     private theCartService: CartService,
-    private customerService: CustomerService,
     private checkoutService: CheckoutService,
-    private cognitoService: CognitoService,
-    private router: Router) {
+    private authUtilService: AuthUtilService
+  ) {
     this.userEmail = "";
   }
 
   ngOnInit(): void {
     // this.loadCart(); // Load cart from session storage
-    this.getCustomerInformation();
     this.reviewCartDetails();
-  }
+    this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+    });
 
-  async getCustomerInformation() {
-    this.userEmail = '';
-
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(
-        {
-          next: data => {
-            console.log("Customer Info", data);
-            this.customer = data;
-
-          }, error: err => {
-
-
-          }, complete: () => {
-
-          }
+    // Subscribe to user info updates
+    this.authUtilService.getUserInfo$().subscribe((userInfo) => {
+      this.userInfo = userInfo;
+      console.log(`[productAdd] user info: ${JSON.stringify(this.userInfo)}`);
+      if (this.userInfo){
+        this.userEmail = userInfo.email;
+        this.customer = {
+          name: this.userInfo.name,
+          email: this.userInfo.email,
+          roleind: this.userInfo.role,
+          id: this.userInfo.id,
         }
-      );
-    }
+      }
+    });
   }
 
   onSubmit() {
@@ -95,6 +83,7 @@ export class CheckoutComponent implements OnInit {
       },
       error: err => {
         alert(`There was an error: ${err.message}`);
+        this.resetCart();
       }
     });
 
@@ -116,7 +105,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   resetCart() {
-    // reset cart data 
+    // reset cart data
     this.theCartService.cartItems = [];
     this.theCartService.totalPrice.next(0);
     this.theCartService.totalQuantity.next(0);
@@ -129,4 +118,3 @@ export class CheckoutComponent implements OnInit {
     alert("UPDATED CHECKOUT");
   }
 }
-

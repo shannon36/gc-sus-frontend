@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { Product } from '../../common/product';
 import { ProductCategory } from 'src/app/common/product-category';
+import { env } from 'src/app/env';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class ProductService {
 
   // private categoryUrl = 'http://localhost:8080/api/product-category';
   // private baseUrl = 'http://localhost:9090';
-  private baseUrl = 'http://143.42.79.86/backend';
+  // private baseUrl = 'http://143.42.79.86/backend';
+  private baseUrl = env.API_URL;
   // private baseUrl = 'https://smartcart.nus.yaphanyee.com';
 
   constructor(private httpClient: HttpClient) { }
