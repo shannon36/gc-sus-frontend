@@ -5,6 +5,7 @@ import { OAuthService } from 'angular-oauth2-oidc';
 import { filter } from 'rxjs';
 import { AuthUtilService } from 'src/app/services/auth/auth-util.service'
 import { IUserInfo } from 'src/app/services/auth/auth-util.service';
+import { env } from 'src/app/env';
 
 @Component({
   selector: 'app-auth',
@@ -44,7 +45,7 @@ export class AuthComponent {
 
   private configureOAuth() {
     this.oauthService.configure({
-      clientId: '1090601764279-2njt06m8470ls2fo7h7aie8rltdjcgns.apps.googleusercontent.com',
+      clientId: env.GOOGLE_OAUTH_CLIENT_ID,
       issuer: 'https://accounts.google.com',
       redirectUri: window.location.origin + '/auth',  // Redirect after OAuth flow
       scope: 'openid profile email',
@@ -90,7 +91,7 @@ export class AuthComponent {
     // Use the state to determine which endpoint to call
     if (state === 'login') {
       // Call /auth/token for login
-      this.http.get('http://localhost:8080/auth/token', { headers }).subscribe({
+      this.http.get(env.API_URL, { headers }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
           this.authUtilService.checkIfLoggedIn();
@@ -104,7 +105,7 @@ export class AuthComponent {
       // Call /auth/register for registration
       const role = stateExtra.userRole == 'S' ? 'S' : 'C'
       const name = stateExtra.userName;
-      this.http.post('http://localhost:8080/auth/register', { name, role }, { headers }).subscribe({
+      this.http.post(env.API_URL, { name, role }, { headers }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
           this.authUtilService.checkIfLoggedIn();
