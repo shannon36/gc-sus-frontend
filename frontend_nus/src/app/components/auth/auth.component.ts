@@ -28,7 +28,6 @@ export class AuthComponent {
   ngOnInit() {
     this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;
-      console.log(`isLoggedIn: ${this.isLoggedIn}`)
     });
 
     // Subscribe to user info updates
@@ -94,6 +93,7 @@ export class AuthComponent {
       this.http.get('http://localhost:8080/auth/token', { headers }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
+          this.authUtilService.checkIfLoggedIn();
           this.router.navigate(['/home']);
         },
         error: (error) => {
@@ -102,11 +102,12 @@ export class AuthComponent {
       });
     } else if (state === 'register') {
       // Call /auth/register for registration
-      const role = stateExtra.userRole == 'Seller' ? 'S' : 'C'
+      const role = stateExtra.userRole == 'S' ? 'S' : 'C'
       const name = stateExtra.userName;
       this.http.post('http://localhost:8080/auth/register', { name, role }, { headers }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
+          this.authUtilService.checkIfLoggedIn();
           this.router.navigate(['/home']);
         },
         error: (error) => {
