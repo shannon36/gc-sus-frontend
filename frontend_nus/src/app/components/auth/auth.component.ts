@@ -1,59 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { IUser, CognitoService } from 'src/app/services/auth/cognito.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CustomerService } from 'src/app/services/customer/customer.service';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
-import { filter } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
-  styleUrls: ['./auth.component.css'],
+  styleUrls: ['./auth.component.css']
 })
-export class AuthComponent implements OnInit {
+export class AuthComponent {
+  isLoginMode: boolean = true;  // Controls whether we're in login or register mode
+  userName: string = '';  // For registering user
+  userRole: string = 'C';  // Default role is Customer
+  isLoggedIn: boolean = false;  // Flag to check if user is logged in
+  loggedInUserName: string = '';  // Holds the logged-in user's name
+  loggedInUserRole: string = '';  // Holds the logged-in user's role
 
-  showSignUp: boolean;
-  loading: boolean;
-  isShowOTP: boolean;
-  isShowProgressMessage: boolean;
-  progressMessage: string;
-  isShowErrorMessage: boolean;
-  errorMessage: string;
-  hideSignUpButton: boolean;
-  user: IUser;
-  user1: any;
-
-  isLoggedIn: boolean;
-  isAuth: any;
-  userEmail: string;
-  userName!: string;
-  tempAWSUserIdOnSignUp: String = "";
-
-  seller!: boolean;
-  userRole!: string;
-
-
-  constructor(private router: Router,
-    private cognitoService: CognitoService, private http: HttpClient, private customerService: CustomerService, private oauthService: OAuthService) {
-    this.loading = false;
-    this.isShowOTP = false;
-    this.showSignUp = false;
-    //
-    this.isShowProgressMessage = false;
-    this.progressMessage = "";
-    this.isShowErrorMessage = false;
-    this.errorMessage = ""
-    this.hideSignUpButton = false;
-    //
-    this.user = {} as IUser;
-    //
-    this.isLoggedIn = false;
-    this.userEmail = '';
+  constructor(private router: Router, private http: HttpClient, private oauthService: OAuthService) {
     this.configureOAuth();
-    this.checkIsLoggedIn();
-
+    this.checkIfLoggedIn();
   }
 
   ngOnInit() {
@@ -66,178 +33,99 @@ export class AuthComponent implements OnInit {
     this.oauthService.configure({
       clientId: '1090601764279-2njt06m8470ls2fo7h7aie8rltdjcgns.apps.googleusercontent.com',
       issuer: 'https://accounts.google.com',
-      redirectUri: window.location.origin + '/auth',
+      redirectUri: window.location.origin + '/auth',  // Redirect after OAuth flow
       scope: 'openid profile email',
       strictDiscoveryDocumentValidation: false,
       responseType: 'token id_token',
-      showDebugInformation: true, // Remove this in production
-      oidc: true,
-      // Add these lines:
-      customQueryParams: {
-        prompt: 'select_account consent'
-      }
+      showDebugInformation: true,
+      oidc: true
     });
     this.oauthService.setupAutomaticSilentRefresh();
     this.oauthService.loadDiscoveryDocumentAndTryLogin().then( () => Promise.resolve() );
   }
 
-  private handleNewToken() {
-    const idToken = this.oauthService.getIdToken();
-    console.log(`id token from oauth service: ${idToken}`);
-    const headers = {
-      'id_token': idToken
-    };
-
-    // Send the ID token to your backend for validation and user creation/update
-    this.http.get('http://localhost:8080/auth/token', { headers }).subscribe({
-      next: (response: any) => {
-        // Handle successful authentication
-        // Store the JWT from your backend, if applicable
-        localStorage.setItem('jwt', response.jwt);
-        this.checkIsLoggedIn();
-      },
-      error: (error) => {
-        console.error('Authentication error', error);
-        // Handle error
-      }
-    });
+  // Switching between login and register mode
+  setMode(mode: string) {
+    this.isLoginMode = (mode === 'login');
   }
 
-  async checkIsLoggedIn() {
-    // TODO: Call backend user endpoint to get current user information using JWT
-    this.isLoggedIn = this.oauthService.hasValidIdToken();
-    if (this.isLoggedIn) {
-      console.log(`Hello i got access token: ${this.isLoggedIn}`);
-      // const claims = this.oauthService.getIdentityClaims();
-      // this.userEmail = claims['email'];
-      // this.userName = claims['name'];
-      // Fetch additional user information if needed
-      this.customerService.getCustomerInformation(this.userEmail).subscribe({
-        next: (data) => {
-          console.log("Customer Info", data);
-          this.userRole = data.roleind ?? "";
+  // Start OAuth2 flow for login
+  signIn() {
+    // Set the state parameter to "login"
+    this.oauthService.initImplicitFlow('login');
+  }
+
+  // Start OAuth2 flow for registration
+  onRegisterSubmit() {
+    // Store user details before OAuth flow
+    localStorage.setItem('userName', this.userName);
+    localStorage.setItem('userRole', this.userRole);
+
+    // Set the state parameter to "register"
+    this.oauthService.initImplicitFlow('register');
+  }
+
+  handleNewToken() {
+    const idToken = this.oauthService.getIdToken();
+    const state = this.oauthService.state;  // Retrieve the state from the OAuth flow
+    let role = localStorage.getItem('userRole');
+    const name = localStorage.getItem('userName');
+
+    const headers = { 'id_token': idToken };
+
+    // Use the state to determine which endpoint to call
+    if (state === 'login') {
+      // Call /auth/token for login
+      this.http.get('http://localhost:8080/auth/token', { headers }).subscribe({
+        next: (response: any) => {
+          localStorage.setItem('jwt', response.jwt);
+          this.router.navigate(['/home']);
         },
-        error: (err) => {
-          console.error("Error fetching customer information", err);
+        error: (error) => {
+          console.error('Login error', error);
+        }
+      });
+    } else if (state === 'register') {
+      // Call /auth/register for registration
+      role = role == 'Seller' ? 'S' : 'C'
+      this.http.post('http://localhost:8080/auth/register', { name, role }, { headers }).subscribe({
+        next: (response: any) => {
+          localStorage.setItem('jwt', response.jwt);
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          console.error('Registration error', error);
         }
       });
     }
   }
 
-  public resetBooleanAndMessage(): void {
-    this.hideSignUpButton = false;
-    this.isShowProgressMessage = false;
-    this.progressMessage = "";
-    this.isShowErrorMessage = false;
-    this.errorMessage = ""
-  }
-
-  public onChangeShowSignUp(event: any): void {
-    console.log(event.target.innerText)
-    this.resetBooleanAndMessage();
-    this.user.password = '';
-    this.showSignUp = event.target.innerText == 'Register' ? true : false;
-    console.log(this.showSignUp)
-  }
-
-  public signUp(): void {
-    if (this.user.email != null && this.user.password != null) {
-
-      this.resetBooleanAndMessage();
-      console.log("Start Signup");
-      this.loading = true;
-      this.isShowProgressMessage = true;
-      this.progressMessage = "Loading (Signing Up)...";
-      this.cognitoService.signUp(this.user)
-        .then((res) => {
-          this.resetBooleanAndMessage();
-          this.loading = false;
-          this.isShowOTP = true;
-          console.log("end Signup, successful");
-          this.isShowProgressMessage = true;
-          this.progressMessage = "An OTP had sent to your email.";
-          // console.log(this.user.email);
-          this.tempAWSUserIdOnSignUp = res["userSub"];
-          // console.log(res["userSub"]);
-          alert("Sign up success. Check your email for OTP.");
-
-        }).catch((e) => {
-          this.resetBooleanAndMessage();
-          this.loading = false;
-          console.log("end Signup, failed");
-          this.isShowErrorMessage = true;
-          this.errorMessage = e.message;
-          alert("SIGN UP FAIL");
-        });
-    }
-    else {
-      this.isShowErrorMessage = true;
-      this.errorMessage = "Do not leave blanks.";
-      this.loading = false;
-
-    }
-  }
-
-  public submitOTP(): void {
-    if (this.user.code != null && this.user.code != "" && this.user.code.length === 6) {
-
-      this.resetBooleanAndMessage();
-      this.loading = true;
-      this.isShowProgressMessage = true;
-      this.progressMessage = "Loading (Submitting OTP)...";
-      this.cognitoService.confirmSignUp(this.user)
-        .then(() => {
-          this.resetBooleanAndMessage();
-          this.showSignUp = false;
-          this.loading = false;
-          this.isShowProgressMessage = true;
-          this.progressMessage = "Account registered successfully. Please login now.";
-          this.user.password = '';
-          this.hideSignUpButton = true;
-          //post identity to customer db only here
-
-          //
-          const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'accept': '*/*',
-          });
-          const customerData = {
-            id: this.tempAWSUserIdOnSignUp,
-            name: this.user.name,
-            email: this.user.email,
-            roleind: this.seller ? "S" : "C"
-          };
-
-          var apiUrl = 'http://143.42.79.86/backend/Users/saveUser';
-          const options = { headers };
-
-          this.http.post(apiUrl, customerData, options).subscribe(
-
-          );
-
-
-
-        }).catch((e) => {
-          this.resetBooleanAndMessage();
-          this.loading = false;
-          console.log("end Signup, failed");
-          this.isShowErrorMessage = true;
-          this.errorMessage = e.message;
-        });
+  // Check if user is logged in by checking for JWT
+  checkIfLoggedIn() {
+    const jwtToken = localStorage.getItem('jwt');
+    if (jwtToken) {
+      this.isLoggedIn = true;
+      this.decodeJwt(jwtToken);
     } else {
-      this.isShowErrorMessage = true;
-      this.errorMessage = "OTP must be 6 digits.";
-      this.loading = false;
-
+      this.isLoggedIn = false;
     }
   }
 
-  public signIn(): void {
-    this.oauthService.initImplicitFlow();
+  // Decode JWT to get user info
+  decodeJwt(token: string) {
+    try {
+      const decodedToken: any = jwtDecode(token);
+      this.loggedInUserName = decodedToken.name || 'Unknown';
+      this.loggedInUserRole = decodedToken.roles || 'User';
+    } catch (error) {
+      console.error('Error decoding JWT', error);
+    }
   }
 
-  public logout(): void {
-    this.oauthService.logOut();
+  // Logout functionality
+  logout() {
+    localStorage.removeItem('jwt');
+    this.isLoggedIn = false;
     this.router.navigate(['/home']);
   }
 }

@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { Routes, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -28,6 +28,7 @@ import { OrderDetailsComponent } from './components/order-details/order-details.
 import { SellerProductListComponent } from './components/seller-product-list/seller-product-list.component';
 
 import { OAuthModule } from 'angular-oauth2-oidc';
+import { AuthInterceptorService } from './services/auth/auth-interceptor.service';
 
 // order of routes is important coz first match wins(start from more specific to generic)
 const routes: Routes = [
@@ -77,7 +78,14 @@ const routes: Routes = [
     MatDialogModule,
     OAuthModule.forRoot(),
   ],
-  providers: [ProductService],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true  // This ensures multiple interceptors can be applied if needed
+    },
+    ProductService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,51 +1,49 @@
-<section id="auth">
-  <!-- if user auth, show profile and logout button -->
-  <div *ngIf="isLoggedIn">
-    <div class="row justify-content-center mt-5">
-      <div class="col-4">
-        <div class="cart">
-          <div class="cart-body">
-            <div class="row">
-              <div class="col text-center">
-                <p>{{userName}}</p>
-                <p>{{userEmail}}</p>
-                <ng-template [ngIf]="userRole == 'C'">
-                  <i class="fa fa-angle-right" aria-hidden="true"></i><a href="/order-history"
-                    style="font-size: 12px; text-decoration: none;"> View Order History</a>
-                </ng-template>
-                <p></p>
-              </div>
-            </div>
-
-            <div class="row mb-5">
-              <div class="col text-center">
-                <button type="button" (click)="logout()" class="btn btn-sm btn-success">
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- if user not auth, show sign in with Google button -->
+<div class="container" style="padding: 20px">
+  <!-- Menu for switching between Login and Register -->
+  <!-- Show login/register form if not logged in -->
   <div *ngIf="!isLoggedIn">
-    <div class="row justify-content-center mt-5 px-5">
-      <div class="flex flex-1">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="col d-grid">
-                <button type="button" (click)="signIn()" class="btn btn-lg btn-primary">
-                  <i class="fab fa-google mr-2"></i> Sign in with Google
-                </button>
-              </div>
-            </div>
-          </div>
+    <nav>
+      <ul class="horizontal-menu">
+        <li [class.active]="isLoginMode" (click)="setMode('login')">Login</li>
+        <li [class.active]="!isLoginMode" (click)="setMode('register')">Register</li>
+      </ul>
+    </nav>
+
+    <!-- Login Section -->
+    <div *ngIf="isLoginMode">
+      <h2>Login</h2>
+      <button class="google-button" (click)="signIn()">
+        <i class="fa fa-google"></i> Sign in with Google
+      </button>
+    </div>
+
+    <!-- Registration Section -->
+    <div *ngIf="!isLoginMode">
+      <h2>Register</h2>
+      <form (ngSubmit)="onRegisterSubmit()">
+        <div>
+          <label for="name">Name:</label>
+          <input type="text" id="name" [(ngModel)]="userName" name="name" required />
         </div>
-      </div>
+
+        <div>
+          <label for="role">Role:</label>
+          <select id="role" [(ngModel)]="userRole" name="role" required>
+            <option value="C">Customer</option>
+            <option value="S">Seller</option>
+          </select>
+        </div>
+
+        <button type="submit">Register with Google</button>
+      </form>
     </div>
   </div>
-</section>
+
+  <!-- Show user info if logged in -->
+  <div *ngIf="isLoggedIn">
+    <h2>Welcome, {{ loggedInUserName }}!</h2>
+    <p>Your role: {{ loggedInUserRole }}</p>
+    <button type="submit" (click)="logout()">Logout</button>
+
+  </div>
+</div>
