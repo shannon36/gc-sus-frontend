@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Product } from 'src/app/common/product';
 import { ProductCategory } from 'src/app/common/product-category';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
 import { ProductService } from 'src/app/services/product/product.service';
 import { Image } from 'src/app/common/image';
 import { ImageService } from 'src/app/services/image/image.service';
+import { AuthUtilService, IUserInfo } from 'src/app/services/auth/auth-util.service'
 
 @Component({
   selector: 'app-seller-product-list',
@@ -15,6 +15,7 @@ import { ImageService } from 'src/app/services/image/image.service';
 export class SellerProductListComponent {
   isAuth: any;
   user: any;
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   userEmail: string | undefined;
   userId!: string;
   products: Product[] = [];
@@ -40,13 +41,49 @@ export class SellerProductListComponent {
   images: Image[] = [];
 
   constructor(
-    private cognitoService: CognitoService,
     private router: Router,
     private productService: ProductService,
+    private authUtilService: AuthUtilService,
     private imageService: ImageService) { }
 
   ngOnInit(): void {
     this.handleProductLists();
+
+    this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
+      this.isAuth = isLoggedIn;
+    });
+
+    // Subscribe to user info updates
+    this.authUtilService.getUserInfo$().subscribe((userInfo) => {
+      if (userInfo){
+        this.userInfo = userInfo;
+        this.userEmail = userInfo.email;
+        if (this.userEmail != undefined) {
+          this.productService.getSellerProductList(this.user.username).subscribe(
+            data => {
+              // console.log("Product List Updated", data);
+              this.products = data;
+              this.products.forEach(d => {
+                let id = d.pdtid?.slice(-4);
+                d.id = 'P' + id?.toUpperCase();
+              })
+              this.products.map(p => {
+                this.productService.getProductCategoryById(p.catid!).subscribe(
+                  (res: Product) => {
+                    // console.log("RES", res);
+                    p.categoryname = res?.categoryname;
+                  }
+                );
+                return p;
+              })
+            },
+            error => {
+              console.log("Error fetching products", error);
+            }
+          );
+        }
+      }
+    });
     this.productService.getProductCategories().subscribe(
       data => {
         this.productCategories = data;
@@ -56,42 +93,7 @@ export class SellerProductListComponent {
 
   async handleProductLists() {
     this.userEmail = '';
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      // console.log("this.user", this.user);
-      this.userEmail = this.user["attributes"]["email"];
 
-      if (this.userEmail != undefined) {
-        this.productService.getSellerProductList(this.user.username).subscribe(
-          data => {
-            // console.log("Product List Updated", data);
-            this.products = data;
-            this.products.forEach(d => {
-              let id = d.pdtid?.slice(-4);
-              d.id = 'P' + id?.toUpperCase();
-            })
-            this.products.map(p => {
-              this.productService.getProductCategoryById(p.catid!).subscribe(
-                (res: Product) => {
-                  // console.log("RES", res);
-                  p.categoryname = res?.categoryname;
-                }
-              );
-              return p;
-            })
-          },
-          error => {
-            console.log("Error fetching products", error);
-          }
-        );
-      }
-
-
-    } else {
-      this.router.navigate(['/auth'])
-    }
   }
 
 
