@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ProductService } from './../../services/product/product.service';
 import { ProductCategory } from 'src/app/common/product-category';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
+import { IUserInfo } from 'src/app/services/auth/auth-util.service';
 import { CustomerService } from 'src/app/services/customer/customer.service';
 import { Product } from 'src/app/common/product';
 import { Image } from 'src/app/common/image';
 import { ImageService } from 'src/app/services/image/image.service';
+import { AuthUtilService } from 'src/app/services/auth/auth-util.service';
 
 @Component({
   selector: 'app-product-add',
@@ -15,11 +16,11 @@ import { ImageService } from 'src/app/services/image/image.service';
 })
 export class ProductAddComponent implements OnInit {
   user: any;
+  userInfo: IUserInfo = { email: '', name: '', role: ''};
 
   isLoggedIn: boolean = true;
-  isAuth: any;
   userEmail: string = "";
-  userId?: string;
+  userId?: string = '';
   images: Image[] = [];
   selectedImageUrl: string | null = null;
   showImagePopup = false;
@@ -40,37 +41,51 @@ export class ProductAddComponent implements OnInit {
 
   constructor(private fb: FormBuilder,
     private productService: ProductService,
-    private cognitoService: CognitoService,
     private customerService: CustomerService,
-    private imageService: ImageService
+    private imageService: ImageService,
+    private authUtilService: AuthUtilService
   ) {
   }
 
   ngOnInit(): void {
-    this.getUserInformation();
+    this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+    });
+
+    // Subscribe to user info updates
+    this.authUtilService.getUserInfo$().subscribe((userInfo) => {
+      this.userInfo = userInfo;
+      this.userEmail = userInfo.email;
+
+      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
+        this.userId = data.id;
+      });
+    });
+
+    // this.getUserInformation();
     this.listProductCategories();
     this.selectedImageUrl = null;
   }
 
-  async getUserInformation() {
-    this.userEmail = '';
-    this.userId = '';
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.isLoggedIn = true;
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
-      console.log(this.userEmail)
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
-        this.userId = data.id;
-      });
+  // async getUserInformation() {
+  //   this.userEmail = '';
+  //   this.userId = '';
+  //   this.isAuth = await this.cognitoService.isAuthenticated();
+  //   if (this.isAuth && this.isAuth != null) {
+  //     this.isLoggedIn = true;
+  //     this.user = {} as IUser;
+  //     this.user = await this.cognitoService.getUser();
+  //     this.userEmail = this.user["attributes"]["email"];
+  //     console.log(this.userEmail)
+  //     this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {
+  //       this.userId = data.id;
+  //     });
 
-    } else {
-      this.isLoggedIn = false;
-    }
-    console.log(this.isLoggedIn)
-  }
+  //   } else {
+  //     this.isLoggedIn = false;
+  //   }
+  //   console.log(this.isLoggedIn)
+  // }
 
   listProductCategories() {
     this.productService.getProductCategories().subscribe(

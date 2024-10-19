@@ -5,9 +5,8 @@ import { Product } from 'src/app/common/product';
 import { ProductCategory } from 'src/app/common/product-category';
 import { CartService } from 'src/app/services/cart/cart.service';
 import { ProductService } from 'src/app/services/product/product.service';
-import { CognitoService, IUser } from 'src/app/services/auth/cognito.service';
-import { Customer } from 'src/app/common/customer';
 import { CustomerService } from 'src/app/services/customer/customer.service';
+import { IUserInfo, AuthUtilService } from 'src/app/services/auth/auth-util.service';
 
 @Component({
   selector: 'app-product-list',
@@ -15,6 +14,7 @@ import { CustomerService } from 'src/app/services/customer/customer.service';
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
+  userInfo: IUserInfo = { email: '', name: '', role: ''};
   products: Product[] = [];
   productCategories: ProductCategory[] = [];
   currentCategoryId: string = "C11";
@@ -28,44 +28,37 @@ export class ProductListComponent implements OnInit {
   user: any;
 
   constructor(private productService: ProductService,
-  			  private cognitoService: CognitoService,
               private cartService: CartService,
               private customerService: CustomerService,
-              private route: ActivatedRoute) { 
+              private route: ActivatedRoute,
+              private authUtilService: AuthUtilService
+             ) {
   	this.userEmail = '';
   	this.userRole = '';
-  	this.checkIsLoggedIn();
-  
   } // to access route parameters
 
   // similar to postconstruct
   ngOnInit(): void {
+    this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+    });
+
+    // Subscribe to user info updates
+    this.authUtilService.getUserInfo$().subscribe((userInfo) => {
+      this.userInfo = userInfo;
+      this.userEmail = userInfo.email;
+      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
+        this.userName = data.name;
+        this.userRole = data.roleind;
+      })
+    });
+
     this.route.paramMap.subscribe(() => {
       this.listProducts();
       this.listProductCategories();
     });
   }
   
-  async checkIsLoggedIn() {
-	this.userEmail = '';
-	this.userRole = '';
-	
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      this.isLoggedIn = true;
-      this.user = {} as IUser;
-      this.user = await this.cognitoService.getUser();
-      this.userEmail = this.user["attributes"]["email"];
-      this.customerService.getCustomerInformation(this.userEmail).subscribe(data => {console.log(data.name)
-        this.userName = data.name;
-        this.userRole = data.roleind;
-     
-      })
-    } else {
-      this.isLoggedIn = false;
-    }
-  }
-
   listProducts() {
     // check if "id" parameter is available
     const hasCategoryId: boolean = this.route.snapshot.paramMap.has('catid');

@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { jwtDecode } from 'jwt-decode';
 import { filter } from 'rxjs';
+import { AuthUtilService } from 'src/app/services/auth/auth-util.service'
+import { IUserInfo } from 'src/app/services/auth/auth-util.service';
 
 @Component({
   selector: 'app-auth',
@@ -15,15 +16,28 @@ export class AuthComponent {
   userName: string = '';  // For registering user
   userRole: string = 'C';  // Default role is Customer
   isLoggedIn: boolean = false;  // Flag to check if user is logged in
+  loggedInUserInfo: IUserInfo = { email: '', name: '', role: ''};
   loggedInUserName: string = '';  // Holds the logged-in user's name
   loggedInUserRole: string = '';  // Holds the logged-in user's role
 
-  constructor(private router: Router, private http: HttpClient, private oauthService: OAuthService) {
+  constructor(private router: Router, private http: HttpClient, private oauthService: OAuthService, private authUtilService: AuthUtilService) {
     this.configureOAuth();
-    this.checkIfLoggedIn();
+    this.authUtilService.checkIfLoggedIn();
   }
 
   ngOnInit() {
+    this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+      console.log(`isLoggedIn: ${this.isLoggedIn}`)
+    });
+
+    // Subscribe to user info updates
+    this.authUtilService.getUserInfo$().subscribe((userInfo) => {
+      this.loggedInUserInfo = userInfo;
+      this.loggedInUserName = userInfo.name;
+      this.loggedInUserRole = userInfo.role;
+    });
+
     this.oauthService.events
       .pipe(filter(e => e.type === 'token_received'))
       .subscribe(_ => this.handleNewToken());
@@ -52,24 +66,25 @@ export class AuthComponent {
   // Start OAuth2 flow for login
   signIn() {
     // Set the state parameter to "login"
-    this.oauthService.initImplicitFlow('login');
+    this.oauthService.initImplicitFlow(JSON.stringify({ action: 'login' }));
   }
 
   // Start OAuth2 flow for registration
   onRegisterSubmit() {
     // Store user details before OAuth flow
-    localStorage.setItem('userName', this.userName);
-    localStorage.setItem('userRole', this.userRole);
 
     // Set the state parameter to "register"
-    this.oauthService.initImplicitFlow('register');
+    const registrationDetails = { action: 'register', action_extra: {userName: this.userName, userRole: this.userRole} };
+    const registrationDetailsState = JSON.stringify(registrationDetails);
+    this.oauthService.initImplicitFlow(registrationDetailsState);
   }
 
   handleNewToken() {
     const idToken = this.oauthService.getIdToken();
-    const state = this.oauthService.state;  // Retrieve the state from the OAuth flow
-    let role = localStorage.getItem('userRole');
-    const name = localStorage.getItem('userName');
+    const stateJsonString = this.oauthService.state;  // Retrieve the state from the OAuth flow
+    const stateJson = JSON.parse(stateJsonString || '{}');
+    const state = stateJson['action'];
+    const stateExtra = stateJson['action_extra'] || {};
 
     const headers = { 'id_token': idToken };
 
@@ -87,7 +102,8 @@ export class AuthComponent {
       });
     } else if (state === 'register') {
       // Call /auth/register for registration
-      role = role == 'Seller' ? 'S' : 'C'
+      const role = stateExtra.userRole == 'Seller' ? 'S' : 'C'
+      const name = stateExtra.userName;
       this.http.post('http://localhost:8080/auth/register', { name, role }, { headers }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
@@ -97,28 +113,6 @@ export class AuthComponent {
           console.error('Registration error', error);
         }
       });
-    }
-  }
-
-  // Check if user is logged in by checking for JWT
-  checkIfLoggedIn() {
-    const jwtToken = localStorage.getItem('jwt');
-    if (jwtToken) {
-      this.isLoggedIn = true;
-      this.decodeJwt(jwtToken);
-    } else {
-      this.isLoggedIn = false;
-    }
-  }
-
-  // Decode JWT to get user info
-  decodeJwt(token: string) {
-    try {
-      const decodedToken: any = jwtDecode(token);
-      this.loggedInUserName = decodedToken.name || 'Unknown';
-      this.loggedInUserRole = decodedToken.roles || 'User';
-    } catch (error) {
-      console.error('Error decoding JWT', error);
     }
   }
 
