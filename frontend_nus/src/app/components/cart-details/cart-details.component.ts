@@ -1,8 +1,7 @@
 import { CartService } from './../../services/cart/cart.service';
 import { CartItem } from './../../common/cart-item';
 import { Component, OnInit } from '@angular/core';
-import { CognitoService } from 'src/app/services/auth/cognito.service';
-import { CustomerService } from '../../services/customer/customer.service';
+import { IUserInfo, AuthUtilService } from 'src/app/services/auth/auth-util.service';
 
 @Component({
   selector: 'app-cart-details',
@@ -11,6 +10,7 @@ import { CustomerService } from '../../services/customer/customer.service';
 })
 export class CartDetailsComponent implements OnInit {
 
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   cartItem: CartItem[] = [];
   totalPrice: number = 0.00;
   totalQuantity: number = 0;
@@ -18,12 +18,20 @@ export class CartDetailsComponent implements OnInit {
   isAuth: any;
   isSeller !: boolean;
 
-
-  constructor(private cartService: CartService, private cognitoService: CognitoService, private customerService: CustomerService) {
-    this.checkIsLoggedIn();
-  }
+  constructor(private cartService: CartService, private authUtilService: AuthUtilService) {}
 
   ngOnInit(): void {
+    // Subscribe to login state
+    this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+    });
+
+    // Subscribe to user info updates
+    this.authUtilService.getUserInfo$().subscribe((userInfo) => {
+      this.userInfo = userInfo;
+      this.isSeller = userInfo.role === "S";
+    });
+
     this.loadCart(); // Load cart from session storage
     this.listCartDetails();
   }
@@ -35,22 +43,6 @@ export class CartDetailsComponent implements OnInit {
       this.cartService.cartItems = this.cartItem; // Sync with the cart service
     } else {
       this.cartItem = []; // Ensure products is initialized to an empty array if nothing is saved
-    }
-  }
-
-  async checkIsLoggedIn() {
-
-    this.isAuth = await this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
-      let userEmail = "";
-      let user = await this.cognitoService.getUser();
-      userEmail = user["attributes"]["email"];
-      this.customerService.getCustomerInformation(userEmail).subscribe(data => {
-        this.isSeller = data.roleind == "S" ? true : false;
-      });
-      this.isLoggedIn = true;
-    } else {
-      this.isLoggedIn = false;
     }
   }
 

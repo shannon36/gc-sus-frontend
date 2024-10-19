@@ -4,13 +4,15 @@ import { Observable, map } from 'rxjs';
 import { Customer } from 'src/app/common/customer';
 import { OrderItem } from 'src/app/common/order-item';
 import { Orders } from 'src/app/common/orders';
+import { env } from 'src/app/env'
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
   // private baseUrl = "http://13.229.63.255:9090";
-  private baseUrl = "https://smartcart.nus.yaphanyee.com";
+  // private baseUrl = "https://smartcart.nus.yaphanyee.com";
+  private baseUrl = env.API_URL;
 
   constructor(private httpClient: HttpClient) { }
 

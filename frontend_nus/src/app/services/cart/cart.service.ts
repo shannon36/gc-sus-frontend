@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { CartItem } from 'src/app/common/cart-item';
-import { Product } from 'src/app/common/product';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +12,24 @@ export class CartService {
   totalPrice: Subject<number> = new BehaviorSubject<number>(0);
   totalQuantity: Subject<number> = new BehaviorSubject<number>(0);
 
-  constructor() { }
+  constructor() {
+    this.loadCartFromSessionStorage();  // Load cart items from sessionStorage during initialization
+  }
+
+  // Load cart items from session storage
+  private loadCartFromSessionStorage() {
+    const storedItems = sessionStorage.getItem('products');
+    if (storedItems) {
+      const items: CartItem[] = JSON.parse(storedItems);
+      items.forEach(item => this.cartItems.push(item));  // Add each item to the cartItems array
+
+      // After loading, remove from session storage
+      sessionStorage.removeItem('products');
+
+      // Recompute cart totals based on the loaded items
+      this.computeCartTotals();
+    }
+  }
 
   addToCart(theCartItem: CartItem) {
     // check if we already have items in the cart
@@ -74,9 +90,13 @@ export class CartService {
 
         // publish the new values ... all subscribers will receive the new data
         this.totalPrice.next(totalPriceValue);
+
+        console.log(`[computeCartTotals] totalPrice: ${totalPriceValue}`)
         this.totalQuantity.next(totalQuantityValue);
+        console.log(`[computeCartTotals] totalQuantityValue: ${totalQuantityValue}`)
       }
     } else {
+      console.log(`[computeCartTotals] cartItems length 0. resetting totalprice and quantity`)
       this.totalPrice.next(0)
       this.totalQuantity.next(0)
     }

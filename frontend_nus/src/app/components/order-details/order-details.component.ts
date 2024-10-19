@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderItem } from 'src/app/common/order-item';
 import { Product } from 'src/app/common/product';
-import { CognitoService } from 'src/app/services/auth/cognito.service';
+import { IUserInfo, AuthUtilService } from 'src/app/services/auth/auth-util.service';
 import { OrderService } from 'src/app/services/order/order.service';
 import { ProductService } from 'src/app/services/product/product.service';
+
 
 @Component({
   selector: 'app-order-details',
@@ -12,6 +13,8 @@ import { ProductService } from 'src/app/services/product/product.service';
   styleUrls: ['./order-details.component.css']
 })
 export class OrderDetailsComponent {
+
+  userInfo: IUserInfo = { email: '', name: '', role: '', id: ''};
   orders: OrderItem[] = [];
   items: Product[] = [];
   itemQty: { [index: string]: any } = {}
@@ -22,20 +25,28 @@ export class OrderDetailsComponent {
 
   constructor(private orderService: OrderService,
     private productService: ProductService,
-    private cognitoService: CognitoService,
     private router: Router,
-    private route: ActivatedRoute) {
-  }
+    private route: ActivatedRoute,
+    private authUtilService: AuthUtilService
+  ) {}
 
   ngOnInit(): void {
+    this.authUtilService.isLoggedIn$().subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+    });
+
+    // Subscribe to user info updates
+    this.authUtilService.getUserInfo$().subscribe((userInfo) => {
+      this.userInfo = userInfo;
+    });
     this.route.paramMap.subscribe(() => {
       this.handleOrderDetails();
     })
   }
 
   handleOrderDetails() {
-    this.isAuth = this.cognitoService.isAuthenticated();
-    if (this.isAuth && this.isAuth != null) {
+    // TODO: Find out what is going on here
+    if (this.isLoggedIn) {
       // get the 'id' param string.
       const theOrderId: string = this.route.snapshot.paramMap.get('orderId') ?? '';
       this.orderService.getOrder(theOrderId).subscribe(
@@ -47,7 +58,6 @@ export class OrderDetailsComponent {
     } else {
       this.router.navigate(['/error']);
     }
-  
 }
 
 getProductDetails(orders: OrderItem[]) {

@@ -2,12 +2,13 @@ import { Observable } from 'rxjs';
 import { Purchase } from './../../common/purchase';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { env } from 'src/app/env';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CheckoutService {
-  private baseUrl = 'http://143.42.79.86/backend';
+  private baseUrl = env.API_URL;
   // private baseUrl = 'https://smartcart.nus.yaphanyee.com';
   // private baseUrl = "http://13.229.63.255:9090";
   // private baseUrl = "http://13.229.63.255:9090";
