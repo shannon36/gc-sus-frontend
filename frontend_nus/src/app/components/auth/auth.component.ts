@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { filter } from 'rxjs';
 import { AuthUtilService } from 'src/app/services/auth/auth-util.service'
@@ -86,12 +86,12 @@ export class AuthComponent {
     const state = stateJson['action'];
     const stateExtra = stateJson['action_extra'] || {};
 
-    const headers = { 'id_token': idToken };
+    const params = new HttpParams().set('id_token', idToken);
 
     // Use the state to determine which endpoint to call
     if (state === 'login') {
       // Call /auth/token for login
-      this.http.get(env.API_URL + '/auth/token', { headers }).subscribe({
+      this.http.get(env.API_URL + '/auth/token', { params }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
           this.authUtilService.checkIfLoggedIn();
@@ -105,7 +105,9 @@ export class AuthComponent {
       // Call /auth/register for registration
       const role = stateExtra.userRole == 'S' ? 'S' : 'C'
       const name = stateExtra.userName;
-      this.http.post(env.API_URL + '/auth/register', { name, role }, { headers }).subscribe({
+      params.set('role', role);
+      params.set('name', name);
+      this.http.post(env.API_URL + '/auth/register', { params }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
           this.authUtilService.checkIfLoggedIn();
