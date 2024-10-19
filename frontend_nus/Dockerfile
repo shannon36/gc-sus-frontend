@@ -35,4 +35,4 @@ USER appuser
 EXPOSE 80
 
 # Start the Node.js application
-CMD [ "npm", "start", "--", "--port", "80", "--host", "0.0.0.0", "--disable-host-check" ]
+CMD [ "npm", "start-prod", "--", "--port", "80", "--host", "0.0.0.0", "--disable-host-check" ]
