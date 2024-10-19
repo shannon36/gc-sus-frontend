@@ -91,7 +91,7 @@ export class AuthComponent {
     // Use the state to determine which endpoint to call
     if (state === 'login') {
       // Call /auth/token for login
-      this.http.get(env.API_URL, { headers }).subscribe({
+      this.http.get(env.API_URL + '/auth/token', { headers }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
           this.authUtilService.checkIfLoggedIn();
@@ -105,7 +105,7 @@ export class AuthComponent {
       // Call /auth/register for registration
       const role = stateExtra.userRole == 'S' ? 'S' : 'C'
       const name = stateExtra.userName;
-      this.http.post(env.API_URL, { name, role }, { headers }).subscribe({
+      this.http.post(env.API_URL + '/auth/register', { name, role }, { headers }).subscribe({
         next: (response: any) => {
           localStorage.setItem('jwt', response.jwt);
           this.authUtilService.checkIfLoggedIn();
